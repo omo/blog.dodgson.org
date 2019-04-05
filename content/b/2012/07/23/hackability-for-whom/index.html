@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Hackability - For Whom? - steps to phantasien</title>
+  <meta name="author" content="Hajime Morrita">
+
+  
+  <meta name="description" content="WEB+DB Press が出てます(だいぶ前に).
+前回はあまりに内容がおっさんすぎたと反省し, 今回は若者ぶって JavaScript のビューレイヤの話を書いてみました.
+MVC 用語の定義を気にするのもいいけどもうちょっと細かい所に目を向けても面白いですよ, という話のつもりです. &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://steps.dodgson.org/b/2012/07/23/hackability-for-whom/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="steps to phantasien" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<link href='//fonts.googleapis.com/css?family=Artifika|PT+Sans:regular,italic,bold,bolditalic|PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<meta property="fb:admins" content="542412357">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27326331-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1><a href="/">steps to phantasien</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="//google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:steps.dodgson.org" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives/">Archives</a></li>
+  <li><a href="/selection/">Selection</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Hackability - For Whom?</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-07-23T20:30:00-07:00" pubdate data-updated="true">Jul 23<span>rd</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><img src="http://farm1.staticflickr.com/142/327742012_edb155456e_z.jpg" alt="image" /></p>
+
+<p><a href="http://gihyo.jp/magazine/wdpress/archive/2012/vol69">WEB+DB Press</a> が出てます(だいぶ前に).
+前回はあまりに内容がおっさんすぎたと反省し, 今回は若者ぶって JavaScript のビューレイヤの話を書いてみました.
+MVC 用語の定義を気にするのもいいけどもうちょっと細かい所に目を向けても面白いですよ, という話のつもりです.
+しかし最近は JS もおっさん言語であるという指摘をうけ二週遅れな自分を痛感&#8230;</p>
+
+<p>おっさん的な話であるところの連載第一回 <a href="http://gihyo.jp/dev/serial/01/comparators/0001">Hackability vs. Hackiness</a>
+はオンラインで読めるようになっていました. お暇のある方はご覧ください.</p>
+
+<p>以下あんまし関係ない話:</p>
+
+<h2>Hackability 紛争</h2>
+
+<p>先の連載記事にも書いたとおり, WebKit はプロジェクト目標の一つとして <a href="http://www.webkit.org/projects/goals.html">hackability を挙げている</a>.
+私が hackability の有無を気にし始めたのもこれを見て以来のことだ.
+Hackability という言葉はかっこいい. 少なくともオープンソースの世界でこれに意義を唱える人は多くなかろう.</p>
+
+<p>Hackability はある種の正義だとおもう. 正義には良いところがある一方で喧嘩にもつながる.
+世の国々が正義をめぐって各地で人死を出しているように, hackability もたびたび喧嘩の種になる. 死人は出ないけど.</p>
+
+<p>WebKit も例外でない. WebKit のメーリングリストで嵐を呼んだスレッドを探したければ
+<a href="http://markmail.org/search/webkit-dev+list:org.webkit.lists.webkit-dev+hackability+order:date-backward">hackability と検索</a>すればいい.
+私はフレームの類があまり得意でないから, こういうスレッドはいつも遠目に眺めている.
+ところがあるとき自分の書いたコードが誰かの正義に反してしまい, 肝を冷やしたことがあった.</p>
+
+<p>半年ほどまえ, WebKit で <a href="http://markmail.org/message/fkiibwrwv3xporxx">Modularization</a> と銘打つ大規模なリファクタリングが始まった.
+山ほどある Web ナントカ API の実装を WebKit の &#8220;コア&#8221; 部分から追いだそうとする大掃除だ.</p>
+
+<p>大半の Web ナントカ API は, DOM やレンダリングといったブラウザ従来の機能とあまり関係がない.
+ところが WebKit は構造上こうした従来の機能と Web ナントカ API のコードが混在しがちで, 太ったコードベースが健康を損ねていた.
+Modularization は, そんな肥満コードの依存関係を整理してダイエットする試みだった.
+主な作業は IDL パーサやビルドシステムといった足回りの拡張と, モジュール化されたファイルの移動.
+たとえば <a href="http://dev.w3.org/geo/api/spec-source.html">Geolocation API</a> の実装はモジュールとして
+<a href="http://trac.webkit.org/browser/trunk/Source/WebCore/Modules/geolocation">Modules/geolocation</a> ディレクトリに移されている.</p>
+
+<p>Modularization のリファクタリングは興味ふかいものだったけれど,
+ふだん &#8220;コア&#8221; に近い DOM 周辺をさわっている私からすれば他人事でもあった.
+後で書くように modularization の提案は反発を受けるのだが,
+自分の提案に反論をうけ唸っている同僚を横目に私はのうのうと仕事をしていた.</p>
+
+<h2>Vibration API</h2>
+
+<p>ところがそのころ登場した <a href="http://www.w3.org/TR/vibration/">Vibration API</a> がきっかけで,
+私も modularization の騒ぎに巻き込まれかける. Vibration API はウェブアプリからケータイをブルブルする機能.
+Firefox OS や Tizen など Web 色の強いモバイル環境に支持されている.</p>
+
+<p>WebKit のコードレビューはレビュアを指名しないボランティア制をとっている.
+現実には非公式な形で同僚なんかにレビューをたのむことが多いんだけれど,
+たとえば同僚の守備範囲を超えたパッチは社外の誰かに見てもらわないといけない.</p>
+
+<p>こうした外様レビューには大抵時間がかかる. よく待たされて困っている. 私自身も誰かを困らせているかも知れない.
+だからせめてわかる範囲ではさっさとレビューしようと,
+ヒマなときは<a href="https://bugs.webkit.org/request.cgi?action=queue&amp;requester=&amp;product=&amp;type=review&amp;requestee=&amp;component=&amp;group=requestee">レビュー待ちキュー</a>を眺める.
+そして自分にわかりそうなもの, 持ち場とは違うけれど簡単そうなやつをレビューしたりする. パッチの球拾いってかんじ.</p>
+
+<p>あるとき球拾いをしていると, 件の Vibration API を
+<a href="https://bugs.webkit.org/show_bug.cgi?id=72010">WebKit に追加する投稿</a> が目についた.
+パッチは誰からも相手にされないまま放置されている. 守備範囲の人がいなかったのだろう.
+中身を覗くと見るからにブラウザ本体とは関係なさそうなコードがある. モジュール化するにはもってこいだ.
+球拾いを兼ねて, modularization のパターンでコードを構成しなおすようパッチの作者に求めた.
+メーリングリストで modularization の議論が活発化する少し前のこと.</p>
+
+<p>そのあともレビューが進み, チェックインして良さそうなコードが出来た.
+ところが Vibration API 自体の WebKit 内評判が<a href="http://markmail.org/thread/ir4vmndkminuhtmb">いまいち芳しくない</a>.
+セキュリティどうなの, 他の API で足りるんじゃないのなど, 強い反対ではないものの標準化にありがちな押し戻しがちらほら見られる.
+議論を促すもいまいち進まない.</p>
+
+<h2>Revert Ready</h2>
+
+<p>こいつは面倒そうだ. 議論の決着していないコードをチェックインしたせいで文句を言われたくない.
+件のパッチは見なかったことにしよう. 私はそう決めた.
+そもそも本業とは全然関係ないパッチだし. 単なる草むしりだし.</p>
+
+<p>ところがパッチの作者は粘り強かった. IRC に現れてレビューをしろと食い下がってくる.
+しかも相手は隣の国に住んでおり時差がない. 逃げ場なし. 油断した&#8230;</p>
+
+<p>私は以前, まだ定義の不完全な Web API をチェックインしてだいぶ怒られたことがある.
+結局そのときのパッチは revert された. それ以来, 評判の不透明な機能をチェックインするのには及び腰になっている.
+かといってレビューの要望にシラを切り通すのもしんどい.</p>
+
+<p>仕方ない. パッチはとりあえずチェックインして, ケチがついたらさっさと revert しよう.
+そう諦めてコードを眺め直すと, いくつか revert しにくそうな箇所が目についた.
+オブジェクトの寿命管理がゴミゴミしたコードに埋もれている.
+このままだと(たとえば)一ヶ月後にケチがついても, たぶん機械的には revert できない.
+ケチがついた瞬間 &#8220;ハイハイすんませんすぐやっときますねー&#8221; ってかんじで revert したいのに&#8230;</p>
+
+<p>仕方なくその周辺をリファクタリングすることにした.
+別のモジュールを生贄に, <a href="http://trac.webkit.org/changeset/107518">オブジェクトの寿命管理を整理するパッチ</a>を書く.
+そして同じ仕組みに則るよう Vibration API パッチの作者にお願いし,
+歯切れのよいパッチができあがった. これならいつでも revert できる.
+ようやくレビューを受理し, パッチは<a href="http://trac.webkit.org/changeset/108272">チェックイン</a>された.
+今の所 revert されることもなく元気にやっている.</p>
+
+<h2>反対の声</h2>
+
+<p>この revert 対策リファクタリングで追加した抽象が思ったより強力だったため,
+Vibration API 以外のモジュールも同じパターンを踏襲しはじめた.
+結局のところ revert のしにくさは modularization 基盤がもつ欠点のあらわれだったのだ.</p>
+
+<p>抽象といっても大したものじゃない.
+いくつかのオブジェクトにライフサイクルを監視する observer 用 endpoint を追加しただけ.
+ただ WebKit は伝統的にこうした pluggability や extesibility を嫌っている.
+私も modularization を冠した大規模リファクタリングや
+revert の恐怖といった圧力があってようやく, そういうコードを書く気がおきた.</p>
+
+<p>同じような文化的背景から, 件の modularization 提案自体も反発にあった.
+Modularization はコードの局所性を下げ, かえって見通しを下げるという苦情.
+先の<a href="http://markmail.org/message/fkiibwrwv3xporxx">提案メール</a>は長い議論を呼んだ.</p>
+
+<p>私のリファクタリングが追加したような寿命管理のフックについても,
+<a href="http://markmail.org/message/tpjntgakom5v56ua">それは理解の妨げになりうる</a>と控えめな批判があり,
+おもわず息を飲んだ. とりあえず revert しろとは言われず胸をなでおろしたけれど&#8230;</p>
+
+<p>いくらか緊張を孕んだ議論はなんとか妥協にたどりつき収束した.
+結果として modularization の仕組みは残しつつ,
+モジュールに切り出される機能の数は当初の提案より少なくなった.
+事前にモジュール化されていた機能のいくつかはコアに押し戻された.
+Modularization の提案者にはコアをできるだけ小さくするマイクロカーネル的な思惑があったようだが,
+コミュニティ - 特に古参の開発者はそれを受け入れなかった.
+(<a href="http://trac.webkit.org/wiki/Modules">まとめページ</a>.)</p>
+
+<h2>引力の素</h2>
+
+<p>この議論には折り合わない２つの正義=Hackability があった.
+Modularization の擁護派は, モジュールを追加しやすくする hackability を求めた.
+古参の開発者は問題追跡のやりやすさやコード全体の見通しをもたらす hackability を求めた.
+一方は WebKit コアの &lt;上> に乗る hackability を求め,
+他方は WebKit コアの &lt;中> に潜る hackability を求めたとも言える.</p>
+
+<p><a href="http://www.w3.org/2012/05/sysapps-wg-charter.html">山のような Web ナントカ API</a> が実装を待っている
+(たぶん. 個人の見解です)以上,
+modularization に類する &lt;上> の hackability を求める声を無視しつづけることはできなかったと個人的には思う.
+一方で, extesibility や pluggability に抵抗する WebKit の慣性をノスタルジーと退けるのも抵抗がある.</p>
+
+<p>Web からアクセスできる API を WebKit に足すのはそれなりに面倒な作業だ.
+特に WebKit をフォークして拡張部分を保守しようとした日には大変な苦労が待っている.
+API の追加時はどうしても本体のコードに手を入れる必要がある. そして本体のコードはどんどん変わる.
+trunk の外側でコードを追いかける苦労は多い.
+だから API の追加を望む人々はパッチを書き、それをなんとか trunk に送り込もうとする.</p>
+
+<p>もし WebKit が十分に extesible かつ pluggable だったら,
+WebKit の組み込み利用者が簡単に API を追加できたら, はたして何がおきるだろう.
+フォークの上で労なく追加機能を保守できるのに, 人々はわざわざ trunk にパッチをよこすか.
+わからない. 今ほどの強い圧力は働かないだろう.</p>
+
+<p>意図的かどうかはともかく, WebKit に通底する反拡張性主義は潜在的な開発者にプロジェクトへの参加を促した.
+それは trunk に戻れないまま死んだたくさんの袋小路フォークを生んだけれど,
+WebKit 自体には求心力をもたらし血肉になったと思う.
+Modularization はこの引力を削ぐことにならないか?</p>
+
+<p>一方で, trunk への参加を決めた開発者が API をはじめとする新機能の追加を望んだ時,
+反拡張主義はどれほどその意欲を, hackability を削いでいるのか?</p>
+
+<p>Hackability を謳うとき, その主体は必ずしも明らかでない.</p>
+
+<h2>様々な目標</h2>
+
+<p>さて, こう書くと modularization の議論は hackability を軸として交わされたように読める.
+私もそう読んでいた. しかしプロジェクトの意志決定にとって hackability は問題の一面でしかない.
+<a href="http://www.webkit.org/projects/goals.html">WebKit のプロジェクト目標</a> は他にも色々ある.
+特に Performance や Stability, Standards Compliance あたりは modularization のデザインに影響を与えている.</p>
+
+<p>たとえば <strong>Performance</strong>.
+性能を下げないため, modularization の仕組みはなるべくコンパイル時にモジュールを解決しようとする.
+IDL パーサの生成するコードもビルドシステムと密着してコンパイル時の解決を助けている.</p>
+
+<p><strong>Standards Compliance</strong> も影響力がある.
+アプリケーションから野良 API を追加しやすい仕組みができると, WebKit でありながら非標準 API を大量搭載したブラウザが登場しうる.
+WebKit のプロジェクトが個々のアプリケーションに口を挟むことはできないけれど, すくなくともそれを後押し仕組みを持ち込む動機はない.
+過剰な拡張性は野良 API の追加を助ける.
+だから API 実装者の hackability は潜在的に Standards Compliance と衝突しうる.</p>
+
+<p>Modularization によってもたらされる拡張性は <strong>Stability</strong> を損ねうる.
+拡張可能を銘打ったツールを使ったことのある人なら誰でも身に覚えがあると思う.
+ライフサイクル監視用のフックなんかは stability を損ねる常連.
+フック同士が暗黙の依存関係を持ってしまい, フックの実行順序によって再現しにくいエラーを起こす,
+なんてのはややこしいシステムでよく見かける光景.</p>
+
+<h2>まばゆさ</h2>
+
+<p><img src="http://farm4.staticflickr.com/3181/2289040114_95c8a1eca6_z.jpg?zz=1" alt="image" /></p>
+
+<p>Modularization を議論するスレッドは,
+どのようにこれらのバランスを取るべきかのトレードオフを巡る綱引きでもあった.
+けれど, おそらくは &#8220;Hackability&#8221; という言葉の輝きに目を奪われ,
+議論の参加者が他のプロジェクト目標を直接引き合いに出すことはなかった.
+反論自体はそうした様々な価値を暗黙の論拠としていたにもかかわらず,
+hackability のまばゆい正義が煌々と舞台を照らし陰影を奪った.
+開発者の心を染めているのは淡く重なる色々なのに.</p>
+
+<p>この一件に限らず, これまでも hackability の持つ行き過ぎたまばゆさは
+終わらない議論を炊きつけてきたのだろう.
+まばゆい正義に価値がないとは思わない. けれどそれを口にする帰結は少し考えていい.
+正義の拳を振り上げてしまったら, 誰かに振り下ろさないと収まりがつかないからね.</p>
+
+<p>写真:</p>
+
+<ul>
+<li><a href="http://www.flickr.com/photos/pulpolux/327742012/">http://www.flickr.com/photos/pulpolux/327742012/</a></li>
+<li><a href="http://www.flickr.com/photos/uditk/2289040114/">http://www.flickr.com/photos/uditk/2289040114/</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Hajime Morrita</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-07-23T20:30:00-07:00" pubdate data-updated="true">Jul 23<span>rd</span>, 2012</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://steps.dodgson.org/b/2012/07/23/hackability-for-whom/" data-via="" data-counturl="http://steps.dodgson.org/b/2012/07/23/hackability-for-whom/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/b/2012/06/03/on-hopping-continued/" title="Previous Post: ホッピングの話のつづき">&laquo; ホッピングの話のつづき</a>
+      
+      
+        <a class="basic-alignment right" href="/b/2012/08/18/code-review-styles/" title="Next Post: コードレビューいろいろ">コードレビューいろいろ &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br>
+Disclaimer: <span class="disclaimer">ここで述べられていることは個人的な意見に基づくものです。私の雇用者に一切の関係はありません。</span><br>
+Hajime Morrita - <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

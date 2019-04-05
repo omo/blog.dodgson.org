@@ -1,0 +1,2128 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>steps to phantasien</title>
+  <meta name="author" content="Hajime Morrita">
+
+  
+  <meta name="description" content="WIRED に &#8221;Return of the Borg: How Twitter Rebuilt Google’s Secret Weapon&#8221;
+という記事があった。Twitter が Mesos というクラスタ管理のソフトウェアを開発しており、 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://steps.dodgson.org/p/page/21/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="steps to phantasien" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<link href='//fonts.googleapis.com/css?family=Artifika|PT+Sans:regular,italic,bold,bolditalic|PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<meta property="fb:admins" content="542412357">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27326331-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1><a href="/">steps to phantasien</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="//google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:steps.dodgson.org" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives/">Archives</a></li>
+  <li><a href="/selection/">Selection</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/b/2013/03/10/mesos-a-cloud-scheduler/">Mesos: A Cloud Scheduler (1)</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-03-10T20:02:00-07:00" pubdate data-updated="true">Mar 10<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img src="http://farm3.staticflickr.com/2584/4027996707_0378a6145a_z.jpg" alt="image" /></p>
+
+<p>WIRED に &#8221;<a href="http://www.wired.com/wiredenterprise/2013/03/google-borg-twitter-mesos">Return of the Borg: How Twitter Rebuilt Google’s Secret Weapon</a>&#8221;
+という記事があった。Twitter が Mesos というクラスタ管理のソフトウェアを開発しており、
+それは検索会社のなんとかいうシステムみたいなもんらしいよ、という話。</p>
+
+<p>不勉強につきそのなんとかいうシステムのことはよく知らないけれど、
+去年の今頃開かれた <a href="http://www.zusaar.com/event/250005">Twitter の Open House</a> (<a href="http://weekly.ascii.jp/elem/000/000/082/82970/">ASCII のレポート</a>) をのぞかせてもらった際、
+Twitter 社のエライ人 Rob Benson が 「これからインフラは Mesos でいく!!」
+と熱心に話していたのを<a href="https://plus.google.com/106957273834544340771/posts/EcZPRT2YRXy">覚えている</a>。
+WIRED の記事によれば、Mesos ベースに移行したマシンは二割。もう全部移行する勢いなのかとおもってたけど、インフラを変えるのは大変なのだろう。
+そういえば去年のその講演でも &#8220;これは検索会社のなんとかいうシステムみたいなもので&#8230;&#8221; と Mesos を説明しており、西海岸のオープンカルチャーに笑ってしまった。
+みたいなものって言われても困る。赤坂はサンフランシスコじゃないからね。</p>
+
+<p>Mesos は もともと Berkley 大学のクラウド研究所であるところの
+RAD Lab で生まれたリサーチプロジェクト。
+けっこう<a href="http://incubator.apache.org/mesos/research.html">論文もあったりする</a>。
+システムの概要を知るには WIRED の記事よりは <a href="http://incubator.apache.org/mesos/papers/nsdi_mesos.pdf">NSDI に出された記事</a> を読んだほうが良い。</p>
+
+<p>(そういえば RAD Lab は &#8221;<a href="http://radlab.cs.berkeley.edu/publication/285">Above the Clouds: A Berkeley View of Cloud Computing</a>&#8221; を書いたところだ、
+という紹介を<a href="http://stepped.dodgson.org/?date=20090214">むかしちょっとだけ書いた</a>。)</p>
+
+<p>Mesos はまた <a href="http://incubator.apache.org/mesos/">Apache Incubator</a> にホストされたオープンソースプロジェクトでもある。
+折しも Twitter が Scala を中心とした JVM スタックに移行した話題で盛り上がっていた私は、
+ハイテク化しつつある Rails の会社が検索会社の秘密兵器相当(WIRED 曰く)をオープンソースで開発中だなんて中身を覗かない手はないとチェックアウトした・・・まま文章にしそびれていた。
+いい機会なので読み直し中。色々面白いので紹介したい。</p>
+
+<h2>Cloud Scheduler?</h2>
+
+<p>クラウド・スケジューラとは何か。
+これは私がカッコつけて呼んでみただけの技術的にはまったく不正確な用語で、
+世間的にはクラスタ管理システムなどと呼ぶ方がたぶん正しい。
+ただクラスタ管理だと一般的すぎてまぎらわしくもある。
+Mesos はクラスタ内で利用可能な計算資源を追跡し、ユーザの求めに応じてそれを割り振る。
+スケジューラと呼ぶ方が特徴を捉えてはいると思う。</p>
+
+<p>たとえば Hadoop だと <a href="http://hadoop.apache.org/docs/r1.0.4/commands_manual.html">hadoop</a> コマンドで
+Mapper とかの jar をクラスタに送りつけ色々計算する。
+このとき Hadoop は指定された優先度に応じて空きマシンの CPU にタスクを割り振る。
+あるいは Heroku なら <a href="https://devcenter.heroku.com/articles/procfile">Procfile</a> に CPU 数を書いてアプリケーションを push する。
+Heroku は空きノードを探して該当アプリケーションをデプロイする。
+こういうふうに <strong>このプログラムをこのくらいの計算資源(メモリやCPU)を使って動かしたい</strong> と指定するとよろしくはからってくれるのがスケジューラ、Mesos の仕事だ。</p>
+
+<p>資源割り当ては大きな分散システムにとって一般的な問題。実際 Hadoop の中にはそんな仕組みがあるわけだけれど、同じ事を Hadoop 以外でもやりたい。
+それに計算資源を一元管理したい思惑もある。たとえば Hadoop のクラスタがヒマなときにその CPU を他に使いたくても、計算資源が一元管理されていないと柔軟に振り分けられない。
+フロントエンドへのアクセスが少ない時間帯に CPU を間借りしてバッチをまわしたい、なんてのも同じ。</p>
+
+<p>資源割り当てはウェブ企業にとって気になる問題らしく、
+Facebook も <a href="http://www.facebook.com/notes/facebook-engineering/under-the-hood-scheduling-mapreduce-jobs-more-efficiently-with-corona/10151142560538920">Corona</a>
+という名前で Hadoop 用のスケジューラを書き直していた。これは単純に性能改善のためだとされている。
+Hadoop 本体には内蔵スケジューラの一般化を目指す <a href="http://hadoop.apache.org/docs/current/hadoop-yarn/hadoop-yarn-site/YARN.html">YARN</a> というプロジェクトがあるという。</p>
+
+<p>Hadoop とは別に Mesos を推す Twitter、フォークで Hadoop の性能改善に注力する Facebook、自身を一般化しようとする本家 Hadoop。
+Twitter は Scala でバックエンドを構築してみたり買収したストリーム計算のテクノロジ (<a href="https://github.com/nathanmarz/storm">Storm</a>) が
+Clojure で書いてあったりして Hadoop ばかりを相手にしてもいられず、
+Facebook は <a href="http://hive.apache.org/">Hive</a> だなんだと Hadoop の上で頑張る路線を推し進めた果てに Hadoop のスケーラビリティにしびれを切らし、
+本家は吹き荒れるフォークたちに気をもみ&#8230;それぞれのスケジューラは開発元の事情を映し出している気もして野次馬的には面白い。</p>
+
+<h2>Mesos ツリー概観</h2>
+
+<p>雑談はこのくらいにして<a href="https://github.com/apache/mesos/">コード</a>を眺めてみよう。</p>
+
+<p>ぼんやり数えるとコードは 10 万行くらいある。ただ大半はサードパーティのライブラリ。統計情報を見せる Web UI のコードも多い。
+そのほかテストや細々したスクリプトを差し引くと、Mesos 本体は 2-3 万行くらいにおさまっている。冷やかすにはちょうどいい大きさだ。
+NSDI の記事には 1 万行と書いてあったけれど、プロダクション向けに色々書き足したのだろう。</p>
+
+<p>西海岸&hearts;最新テクノロジーという私の期待に反し、コードの大半は <strong>C++</strong> で書かれている。ビルドは Automake ・・・。
+さっそくがっかり。Scala はどうした！と非難したくなるが、もともと RAD Lab のプロジェクトなので仕方ない。</p>
+
+<p>コードは <a href="https://github.com/apache/mesos/tree/trunk/include">include</a> と <a href="https://github.com/apache/mesos/tree/trunk/src">src</a> の二箇所が主。
+Mesos は Hadoop など既存のシステムと連携してうごくため、<code>include</code> 下に組み込み用の API が定義されている。</p>
+
+<p>でもさ、そもそも Hadoop は Java だからヘッダファイルがあってもダメじゃん・・・とおもったら、
+<a href="https://github.com/apache/mesos/tree/trunk/src/java">src/java</a> に Java ポートがあった。JNI 経由で C++ のインターフェイスを呼んでいる。
+あちこちのサーバに Jar を送りつける分散システムに JNI をつかっちゃって shared library の扱いは大丈夫なのか。やや不安になる。
+まあ Mesos 配下のサーバには Mesos 一式がインストールされているわけだから、バイナリ不在の心配はないのだろう。それでも IPC の方が無難な気がするけれど。</p>
+
+<p>なお他言語バインディングは Java の他になぜか Python がある。Ruby どこいった・・・。</p>
+
+<h2>libprocess</h2>
+
+<p>気を取り直して <code>src/</code> 以下の C++ を眺めると、何かフレームワークらしきものが使われているのに気づく。</p>
+
+<p>改めてツリーをしらべなおす。 どうも <a href="https://github.com/apache/mesos/tree/trunk/third_party/libprocess">third_party/libprocess</a> がそのフレームワークらしい。
+<strong>libprocess</strong> って初耳だな・・・と思ったらそれもそのはず。
+これは <a href="http://www.eecs.berkeley.edu/~benh/libprocess/">Mesos の作者がつくったライブラリ</a>だった。事実上 Mesos でしか使われていない。
+Mesos 以前の個人プロジェクトでつかったものを流用した様子。コードはまあまあ大きく 1.5 万行くらい。Mesos 本体とおなじくらいの規模感。</p>
+
+<p>libprocess は C++ でノンブロッキングのサーバを書くためのフレームワークだ。
+そしてノンブロッキングな流派のなかでも、libprocess は actor スタイルを採用している。
+これで libprocess という名前の由来も想像がつくとおもう。libprocess の API は <strong>Erlang の強い影響下にある</strong>。
+これは<del>中二病こじらせた</del>かっこいい。</p>
+
+<p>なお C++ の分散システムで Erlang ごっこをしてしまう現象はときどき見かける。
+たとえば <a href="https://github.com/jubatus/jubatus/tree/master/src/jubavisor">Jubatus</a> にもそんな痕跡があった。
+気持ちはわかるけどそれ process じゃないと思うんだぜ・・・。</p>
+
+<h2>Process と PID</h2>
+
+<p><a href="https://github.com/apache/mesos/tree/trunk/third_party/libprocess/include/process">libprocess の API surface</a> はけっこう広い。
+その中でも中心となるのがアクターとしてユーザ定義のロジックを持つ Process と、Process を特定するための PID だ。</p>
+
+<p>まず <strong>Process</strong> の定義をながめよう。</p>
+
+<figure class='code'><figcaption><span>process.hpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/include/process/process.hpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">ProcessBase</span> <span class="o">:</span> <span class="k">public</span> <span class="n">EventVisitor</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="n">UPID</span> <span class="n">self</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">pid</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="k">virtual</span> <span class="kt">void</span> <span class="n">initialize</span><span class="p">()</span> <span class="p">{}</span>
+</span><span class='line'>  <span class="k">virtual</span> <span class="kt">void</span> <span class="n">finalize</span><span class="p">()</span> <span class="p">{}</span>
+</span><span class='line'>  <span class="k">virtual</span> <span class="kt">void</span> <span class="n">exited</span><span class="p">(</span><span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">pid</span><span class="p">)</span> <span class="p">{}</span>
+</span><span class='line'>  <span class="k">virtual</span> <span class="kt">void</span> <span class="n">lost</span><span class="p">(</span><span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">pid</span><span class="p">)</span> <span class="p">{}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Puts a message at front of queue.</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">inject</span><span class="p">(</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">from</span><span class="p">,</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>      <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">,</span>
+</span><span class='line'>      <span class="n">size_t</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Sends a message with data to PID.</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">send</span><span class="p">(</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">to</span><span class="p">,</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>      <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">data</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">,</span>
+</span><span class='line'>      <span class="n">size_t</span> <span class="n">length</span> <span class="o">=</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="n">UPID</span> <span class="n">link</span><span class="p">(</span><span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">pid</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">tr1</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span><span class="p">,</span> <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">MessageHandler</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Setup a handler for a message.</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">install</span><span class="p">(</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">MessageHandler</span><span class="o">&amp;</span> <span class="n">handler</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">handlers</span><span class="p">.</span><span class="n">message</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">handler</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">deque</span><span class="o">&lt;</span><span class="n">Event</span><span class="o">*&gt;</span> <span class="n">events</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Delegates for messages.</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">UPID</span><span class="o">&gt;</span> <span class="n">delegates</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Handlers for messages and HTTP requests.</span>
+</span><span class='line'>  <span class="k">struct</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">MessageHandler</span><span class="o">&gt;</span> <span class="n">message</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">HttpRequestHandler</span><span class="o">&gt;</span> <span class="n">http</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="n">handlers</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Active references.</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">refs</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Process PID.</span>
+</span><span class='line'>  <span class="n">UPID</span> <span class="n">pid</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>メッセージを送受信する API (<code>send()</code>, <code>inject()</code>)や、ユーザ定義のメッセージ用コールバックを登録する API (<code>install()</code>) がある。
+Process にメッセージを配送するのはフレームワークの仕事。
+そのほか <code>link()</code> なんて API に Erlang 愛を見いだせる。libprocess は Erlang 風にアクター (Process) 監視の仕組みを持っている。</p>
+
+<p>オブジェクトが持つ状態は受信したイベント(メッセージ)キューやメソッドハンドラのテーブル、そしてオブジェクトの ID たる PID など。</p>
+
+<p>Process/ProcessBase はよくある <a href="http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern">CRTP</a> を成す.</p>
+
+<figure class='code'><figcaption><span>process.hpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Process</span> <span class="o">:</span> <span class="k">public</span> <span class="k">virtual</span> <span class="n">ProcessBase</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>  <span class="k">virtual</span> <span class="o">~</span><span class="n">Process</span><span class="p">()</span> <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Returns pid of process; valid even before calling spawn.</span>
+</span><span class='line'>  <span class="n">PID</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">self</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">PID</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="k">dynamic_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="k">this</span><span class="p">));</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>  <span class="c1">// Useful typedefs for dispatch/delay/defer to self()/this.</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">T</span> <span class="n">Self</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">T</span> <span class="n">This</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>self()</code> とかもうね&#8230;</p>
+
+<p>アプリケーションはこの <strong>Process</strong> クラスを継承して適当なハンドラ関数を実装し、
+それを <code>install()</code> して受信に備える。そのほか <code>exited()</code> などの lifecycle コールバックで後始末などをしてもよい。</p>
+
+<p><code>send()</code> や <code>install()</code> といった API のシグネチャから、 libprocess のメッセージは文字列をキーとした文字列なのがわかる。
+メッセージの内部表現をみてみると・・・</p>
+
+<figure class='code'><figcaption><span>message.hpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">Message</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">name</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">UPID</span> <span class="n">from</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">UPID</span> <span class="n">to</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">body</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>たしかに文字列の名前がついている。それに文字列の <code>body</code>。</p>
+
+<p>プロセスを指定する <strong>PID</strong> は, IP アドレスとポート、そして libprocess インスタンス内の名前である ID からなる。</p>
+
+<p>UPID (Untyped PID) と typed PID がわかれているのはちょっとおしゃれ。</p>
+
+<figure class='code'><figcaption><span>pid.hpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">struct</span> <span class="n">UPID</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="n">UPID</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">id_</span><span class="p">,</span> <span class="n">uint32_t</span> <span class="n">ip_</span><span class="p">,</span> <span class="n">uint16_t</span> <span class="n">port_</span><span class="p">)</span>
+</span><span class='line'>    <span class="o">:</span> <span class="n">id</span><span class="p">(</span><span class="n">id_</span><span class="p">),</span> <span class="n">ip</span><span class="p">(</span><span class="n">ip_</span><span class="p">),</span> <span class="n">port</span><span class="p">(</span><span class="n">port_</span><span class="p">)</span> <span class="p">{}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">UPID</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">s</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">UPID</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">);</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">id</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">uint32_t</span> <span class="n">ip</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">uint16_t</span> <span class="n">port</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span> <span class="o">=</span> <span class="n">ProcessBase</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">struct</span> <span class="n">PID</span> <span class="o">:</span> <span class="n">UPID</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>直列化のための文字列表現もある。 <code>id@ip:port</code> みたいの。</p>
+
+<figure class='code'><figcaption><span>pid.hpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">ostream</span><span class="o">&amp;</span> <span class="k">operator</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="n">stream</span><span class="p">,</span> <span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">pid</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="c1">// Call inet_ntop since inet_ntoa is not thread-safe!</span>
+</span><span class='line'>  <span class="kt">char</span> <span class="n">ip</span><span class="p">[</span><span class="n">INET_ADDRSTRLEN</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">inet_ntop</span><span class="p">(</span><span class="n">AF_INET</span><span class="p">,</span> <span class="p">(</span><span class="n">in_addr</span> <span class="o">*</span><span class="p">)</span> <span class="o">&amp;</span><span class="n">pid</span><span class="p">.</span><span class="n">ip</span><span class="p">,</span> <span class="n">ip</span><span class="p">,</span> <span class="n">INET_ADDRSTRLEN</span><span class="p">)</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">memset</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">INET_ADDRSTRLEN</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">stream</span> <span class="o">&lt;&lt;</span> <span class="n">pid</span><span class="p">.</span><span class="n">id</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;@&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">ip</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">pid</span><span class="p">.</span><span class="n">port</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">stream</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>HTTP</h2>
+
+<p><code>Process</code> クラスはメッセージベースの通信とは別に HTTP をサポートしている。</p>
+
+<figure class='code'><figcaption><span>process.hpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">ProcessBase</span> <span class="o">:</span> <span class="k">public</span> <span class="n">EventVisitor</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="k">typedef</span> <span class="n">std</span><span class="o">::</span><span class="n">tr1</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">http</span><span class="o">::</span><span class="n">Response</span><span class="o">&gt;</span><span class="p">(</span><span class="k">const</span> <span class="n">http</span><span class="o">::</span><span class="n">Request</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">HttpRequestHandler</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Setup a handler for an HTTP request.</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">route</span><span class="p">(</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">HttpRequestHandler</span><span class="o">&amp;</span> <span class="n">handler</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">name</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="sc">&#39;/&#39;</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">handlers</span><span class="p">.</span><span class="n">http</span><span class="p">[</span><span class="n">name</span><span class="p">.</span><span class="n">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">)]</span> <span class="o">=</span> <span class="n">handler</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>RPC-like</h2>
+
+<p>実際のアプリケーションが <code>Process</code> を直接継承することは多くない。
+かわりにバイナリからオブジェクトへの復号化をフレームワークにまかせ、 RPC ぽく使う。
+オブジェクトの直列化には・・・どういうわけか <strong>Protobuf</strong> をつかう。Thrift どこいった・・・。</p>
+
+<figure class='code'><figcaption><span>protobuf.hpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">ProtobufProcess</span> <span class="o">:</span> <span class="k">public</span> <span class="n">process</span><span class="o">::</span><span class="n">Process</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">send</span><span class="p">(</span><span class="k">const</span> <span class="n">process</span><span class="o">::</span><span class="n">UPID</span><span class="o">&amp;</span> <span class="n">to</span><span class="p">,</span>
+</span><span class='line'>            <span class="k">const</span> <span class="n">google</span><span class="o">::</span><span class="n">protobuf</span><span class="o">::</span><span class="n">Message</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">message</span><span class="p">.</span><span class="n">SerializeToString</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">process</span><span class="o">::</span><span class="n">Process</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">send</span><span class="p">(</span><span class="n">to</span><span class="p">,</span> <span class="n">message</span><span class="p">.</span><span class="n">GetTypeName</span><span class="p">(),</span>
+</span><span class='line'>                              <span class="n">data</span><span class="p">.</span><span class="n">data</span><span class="p">(),</span> <span class="n">data</span><span class="p">.</span><span class="n">size</span><span class="p">());</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">M</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">install</span><span class="p">(</span><span class="kt">void</span> <span class="p">(</span><span class="n">T</span><span class="o">::*</span><span class="n">method</span><span class="p">)(</span><span class="k">const</span> <span class="n">M</span><span class="o">&amp;</span><span class="p">))</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">google</span><span class="o">::</span><span class="n">protobuf</span><span class="o">::</span><span class="n">Message</span><span class="o">*</span> <span class="n">m</span> <span class="o">=</span> <span class="k">new</span> <span class="n">M</span><span class="p">();</span>
+</span><span class='line'>    <span class="n">T</span><span class="o">*</span> <span class="n">t</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">*&gt;</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">protobufHandlers</span><span class="p">[</span><span class="n">m</span><span class="o">-&gt;</span><span class="n">GetTypeName</span><span class="p">()]</span> <span class="o">=</span>
+</span><span class='line'>      <span class="n">std</span><span class="o">::</span><span class="n">tr1</span><span class="o">::</span><span class="n">bind</span><span class="p">(</span><span class="o">&amp;</span><span class="n">handlerM</span><span class="o">&lt;</span><span class="n">M</span><span class="o">&gt;</span><span class="p">,</span>
+</span><span class='line'>                     <span class="n">t</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span>
+</span><span class='line'>                     <span class="n">std</span><span class="o">::</span><span class="n">tr1</span><span class="o">::</span><span class="n">placeholders</span><span class="o">::</span><span class="n">_1</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">delete</span> <span class="n">m</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">M</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="k">static</span> <span class="kt">void</span> <span class="n">handlerM</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">t</span><span class="p">,</span> <span class="kt">void</span> <span class="p">(</span><span class="n">T</span><span class="o">::*</span><span class="n">method</span><span class="p">)(</span><span class="k">const</span> <span class="n">M</span><span class="o">&amp;</span><span class="p">),</span>
+</span><span class='line'>                       <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">data</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">M</span> <span class="n">m</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">m</span><span class="p">.</span><span class="n">ParseFromString</span><span class="p">(</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">IsInitialized</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>      <span class="p">(</span><span class="n">t</span><span class="o">-&gt;*</span><span class="n">method</span><span class="p">)(</span><span class="n">m</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">LOG</span><span class="p">(</span><span class="n">WARNING</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Initialization errors: &quot;</span>
+</span><span class='line'>                   <span class="o">&lt;&lt;</span> <span class="n">m</span><span class="p">.</span><span class="n">InitializationErrorString</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>そして直列化形式はなぜか <code>SerializeToString()</code>&#8230; もう JSON でよいのではと思わなくもない。まあクラスを生成する仕組みが欲しかったのかもね。</p>
+
+<p>この手の簡易 RPC が簡単につくれるのは protobuf をはじめとする各種直列化ライブラリの便利なところだとはおもう。
+なお protobuf の <a href="https://developers.google.com/protocol-buffers/docs/proto#services">service</a> 宣言は使わない。
+メッセージは戻り値なしの 1-way。インストールしたハンドラ名に基づいて分配される。</p>
+
+<p>戻り値のかわりに <code>reply()</code> で送信元にメッセージを送ることはできる。
+ただし見ての通り、リクエストとレスポンスの対応をとるリクエスト ID みたいのはない。運用でカバーするものらしい。</p>
+
+<figure class='code'><figcaption><span>protobuf.hpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">ProtobufProcess</span> <span class="o">:</span> <span class="k">public</span> <span class="n">process</span><span class="o">::</span><span class="n">Process</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="k">virtual</span> <span class="kt">void</span> <span class="n">visit</span><span class="p">(</span><span class="k">const</span> <span class="n">process</span><span class="o">::</span><span class="n">MessageEvent</span><span class="o">&amp;</span> <span class="n">event</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">protobufHandlers</span><span class="p">.</span><span class="n">count</span><span class="p">(</span><span class="n">event</span><span class="p">.</span><span class="n">message</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">from</span> <span class="o">=</span> <span class="n">event</span><span class="p">.</span><span class="n">message</span><span class="o">-&gt;</span><span class="n">from</span><span class="p">;</span> <span class="c1">// For &#39;reply&#39;.</span>
+</span><span class='line'>      <span class="n">protobufHandlers</span><span class="p">[</span><span class="n">event</span><span class="p">.</span><span class="n">message</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">](</span><span class="n">event</span><span class="p">.</span><span class="n">message</span><span class="o">-&gt;</span><span class="n">body</span><span class="p">);</span>
+</span><span class='line'>      <span class="n">from</span> <span class="o">=</span> <span class="n">process</span><span class="o">::</span><span class="n">UPID</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">process</span><span class="o">::</span><span class="n">Process</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">visit</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="n">process</span><span class="o">::</span><span class="n">UPID</span> <span class="n">from</span><span class="p">;</span> <span class="c1">// Sender of &quot;current&quot; message, accessible by subclasses.</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">reply</span><span class="p">(</span><span class="k">const</span> <span class="n">google</span><span class="o">::</span><span class="n">protobuf</span><span class="o">::</span><span class="n">Message</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">CHECK</span><span class="p">(</span><span class="n">from</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Attempting to reply without a sender&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">data</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">message</span><span class="p">.</span><span class="n">SerializeToString</span><span class="p">(</span><span class="o">&amp;</span><span class="n">data</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">send</span><span class="p">(</span><span class="n">from</span><span class="p">,</span> <span class="n">message</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>ProcessManager</h2>
+
+<p><code>Process</code> クラスを継承して色々できるのはわかったけど、
+それをどう使えばいいのだろう。<a href="https://github.com/apache/mesos/blob/trunk/third_party/libprocess/examples/example.cpp">ちいさいサンプル</a>
+が入っていたから眺めてみよう。</p>
+
+<figure class='code'><figcaption><span>example.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/examples/example.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">MyProcess</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Process</span><span class="o">&lt;</span><span class="n">MyProcess</span><span class="o">&gt;</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="kt">int</span> <span class="n">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span> <span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">MyProcess</span> <span class="n">process</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">PID</span><span class="o">&lt;</span><span class="n">MyProcess</span><span class="o">&gt;</span> <span class="n">pid</span> <span class="o">=</span> <span class="n">spawn</span><span class="p">(</span><span class="o">&amp;</span><span class="n">process</span><span class="p">);</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="n">dispatch</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">MyProcess</span><span class="o">::</span><span class="n">func1</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">dispatch</span><span class="p">(</span><span class="n">pid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">MyProcess</span><span class="o">::</span><span class="n">func2</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">wait</span><span class="p">(</span><span class="n">pid</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この例はプロセス内通信だけれど、要するに <code>spawn()</code> で Process のインスタンスをフレームワークに登録すればいいらしい。
+そうすれば登録時に発行される PID を介し <code>dispatch()</code> 関数でメッセージやりとりできるようになる。</p>
+
+<p>&#8230;と平静を装いつつ、ただよう不穏な気配に眉をひそめる。
+誰が Process と PID の対応を管理している？イベントループ、メッセージキューはどこだ？
+<code>spawn()</code> を覗いてみる・・・</p>
+
+<figure class='code'><figcaption><span>process.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/process.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="c1">// Active ProcessManager (eventually will probably be thread-local).</span>
+</span><span class='line'><span class="k">static</span> <span class="n">ProcessManager</span><span class="o">*</span> <span class="n">process_manager</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="n">UPID</span> <span class="n">spawn</span><span class="p">(</span><span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">manage</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">process</span><span class="o">::</span><span class="n">initialize</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">process</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">process_manager</span><span class="o">-&gt;</span><span class="n">spawn</span><span class="p">(</span><span class="n">process</span><span class="p">,</span> <span class="n">manage</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">UPID</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><strong>ProcessManager</strong> なる不吉な名前のクラスがあった。しかもグローバル(static)変数。 こいつが管理しているらしい。</p>
+
+<figure class='code'><figcaption><span>process.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/process.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">ProcessManager</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">ProcessManager</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">delegate</span><span class="p">);</span>
+</span><span class='line'>  <span class="o">~</span><span class="n">ProcessManager</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ProcessReference</span> <span class="n">use</span><span class="p">(</span><span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">pid</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">handle</span><span class="p">(</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">Socket</span><span class="o">&amp;</span> <span class="n">socket</span><span class="p">,</span>
+</span><span class='line'>      <span class="n">Request</span><span class="o">*</span> <span class="n">request</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">deliver</span><span class="p">(</span>
+</span><span class='line'>      <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">receiver</span><span class="p">,</span>
+</span><span class='line'>      <span class="n">Event</span><span class="o">*</span> <span class="n">event</span><span class="p">,</span>
+</span><span class='line'>      <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">sender</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">deliver</span><span class="p">(</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">to</span><span class="p">,</span>
+</span><span class='line'>      <span class="n">Event</span><span class="o">*</span> <span class="n">event</span><span class="p">,</span>
+</span><span class='line'>      <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">sender</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">UPID</span> <span class="n">spawn</span><span class="p">(</span><span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">manage</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">resume</span><span class="p">(</span><span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">cleanup</span><span class="p">(</span><span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">link</span><span class="p">(</span><span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span><span class="p">,</span> <span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">to</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">terminate</span><span class="p">(</span><span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">pid</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">inject</span><span class="p">,</span> <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">sender</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">wait</span><span class="p">(</span><span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">pid</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">enqueue</span><span class="p">(</span><span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">dequeue</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">settle</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>  <span class="c1">// Map of all local spawned and running processes.</span>
+</span><span class='line'>  <span class="n">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">ProcessBase</span><span class="o">*&gt;</span> <span class="n">processes</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">synchronizable</span><span class="p">(</span><span class="n">processes</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Queue of runnable processes (implemented using list).</span>
+</span><span class='line'>  <span class="n">list</span><span class="o">&lt;</span><span class="n">ProcessBase</span><span class="o">*&gt;</span> <span class="n">runq</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">synchronizable</span><span class="p">(</span><span class="n">runq</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Number of running processes, to support Clock::settle operation.</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">running</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>ProcessManager</code> は process.cpp で定義されている。
+メンバ変数にはプロセス ID である文字列とプロセスオブジェクトを対応づけるテーブル <code>ProcessManager::processes</code>,
+実行可能な(=消化するメッセージがある)プロセス一覧をもつキュー <code>ProcessManager::runq</code> などがある。
+システム全体でキューが一本だけ。割と素朴なスケジューリングをするのだと想像できる。</p>
+
+<h2>メッセージの送受信</h2>
+
+<p>さて Actor たる Process クラスがあり、その一覧を管理する ProcessManager クラスがあり、
+Process は自分が受け取ったイベントの一覧を持っており、ProcessManager は実行可能な Process のリストを知っている。</p>
+
+<p><img src="http://farm9.staticflickr.com/8094/8553532695_efcf31d50f_z.jpg" alt="image" /></p>
+
+<p>ProcessManager にメッセージを送りつければそれを宛先 Process まで配信してくれるのだろう。
+さてどうやってメッセージを送ったものか。というと、 <code>post()</code> 関数をつかう。</p>
+
+<figure class='code'><figcaption><span>process.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/process.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">post</span><span class="p">(</span><span class="k">const</span> <span class="n">UPID</span><span class="o">&amp;</span> <span class="n">to</span><span class="p">,</span> <span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">data</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">length</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">process</span><span class="o">::</span><span class="n">initialize</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">to</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Encode and transport outgoing message.</span>
+</span><span class='line'>  <span class="n">transport</span><span class="p">(</span><span class="n">encode</span><span class="p">(</span><span class="n">UPID</span><span class="p">(),</span> <span class="n">to</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">string</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">length</span><span class="p">)));</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="n">transport</span><span class="p">(</span><span class="n">Message</span><span class="o">*</span> <span class="n">message</span><span class="p">,</span> <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">sender</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">message</span><span class="o">-&gt;</span><span class="n">to</span><span class="p">.</span><span class="n">ip</span> <span class="o">==</span> <span class="n">__ip__</span> <span class="o">&amp;&amp;</span> <span class="n">message</span><span class="o">-&gt;</span><span class="n">to</span><span class="p">.</span><span class="n">port</span> <span class="o">==</span> <span class="n">__port__</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Local message.</span>
+</span><span class='line'>    <span class="n">process_manager</span><span class="o">-&gt;</span><span class="n">deliver</span><span class="p">(</span><span class="n">message</span><span class="o">-&gt;</span><span class="n">to</span><span class="p">,</span> <span class="k">new</span> <span class="n">MessageEvent</span><span class="p">(</span><span class="n">message</span><span class="p">),</span> <span class="n">sender</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">// Remote message.</span>
+</span><span class='line'>    <span class="n">socket_manager</span><span class="o">-&gt;</span><span class="n">send</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>post()</code> は <code>transport()</code> に処理を移譲する。
+<code>transport()</code> はメッセージの宛先が同一 OS プロセス内なら <code>process_manager-&gt;deliver()</code> を、
+別プロセスなら <code>socket_manager-&gt;send()</code> を呼び出す。
+あたらしい global な manager 様が登場したけれど恐れ多いのであとまわしにして、
+プロセス内メッセージングの <code>process_manager-&gt;deliver()</code> を調べよう。</p>
+
+<figure class='code'><figcaption><span>process.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/process.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">bool</span> <span class="n">ProcessManager</span><span class="o">::</span><span class="n">deliver</span><span class="p">(</span>
+</span><span class='line'>    <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">receiver</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">Event</span><span class="o">*</span> <span class="n">event</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">sender</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="n">receiver</span><span class="o">-&gt;</span><span class="n">enqueue</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>なんてことはない、reciver プロセスのキューにイベントをつめておしまい&#8230;</p>
+
+<figure class='code'><figcaption><span>process.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/process.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">ProcessBase</span><span class="o">::</span><span class="n">enqueue</span><span class="p">(</span><span class="n">Event</span><span class="o">*</span> <span class="n">event</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">inject</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">CHECK</span><span class="p">(</span><span class="n">event</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// 事前に登録された条件に基づきメッセージをフィルタする仕組み.</span>
+</span><span class='line'>  <span class="n">synchronized</span> <span class="p">(</span><span class="n">filterer</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">filterer</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kt">bool</span> <span class="n">filter</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">struct</span> <span class="n">FilterVisitor</span> <span class="o">:</span> <span class="n">EventVisitor</span>
+</span><span class='line'>      <span class="p">{</span>
+</span><span class='line'>         <span class="p">...</span>
+</span><span class='line'>      <span class="p">}</span> <span class="n">visitor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">filter</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">event</span><span class="o">-&gt;</span><span class="n">visit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">visitor</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">filter</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">delete</span> <span class="n">event</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">return</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">lock</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">!=</span> <span class="n">FINISHED</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">inject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">events</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">events</span><span class="p">.</span><span class="n">push_front</span><span class="p">(</span><span class="n">event</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="n">BLOCKED</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">state</span> <span class="o">=</span> <span class="n">READY</span><span class="p">;</span>
+</span><span class='line'>        <span class="c1">// ProcessManager に通知してワーカスレッドを起こす</span>
+</span><span class='line'>        <span class="n">process_manager</span><span class="o">-&gt;</span><span class="n">enqueue</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">CHECK</span><span class="p">(</span><span class="n">state</span> <span class="o">==</span> <span class="n">BOTTOM</span> <span class="o">||</span>
+</span><span class='line'>            <span class="n">state</span> <span class="o">==</span> <span class="n">READY</span> <span class="o">||</span>
+</span><span class='line'>            <span class="n">state</span> <span class="o">==</span> <span class="n">RUNNING</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">delete</span> <span class="n">event</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">unlock</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>..かとおもったけど <code>enqueue()</code> ではメッセージをフィルタリングしたり ProcessManager を起こしたり、それなりに色々やっていた。</p>
+
+<figure class='code'><figcaption><span>process.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/process.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">ProcessManager</span><span class="o">::</span><span class="n">enqueue</span><span class="p">(</span><span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="n">synchronized</span> <span class="p">(</span><span class="n">runq</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">CHECK</span><span class="p">(</span><span class="n">find</span><span class="p">(</span><span class="n">runq</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">runq</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">process</span><span class="p">)</span> <span class="o">==</span> <span class="n">runq</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+</span><span class='line'>    <span class="n">runq</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">process</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Wake up the processing thread if necessary.</span>
+</span><span class='line'>  <span class="n">gate</span><span class="o">-&gt;</span><span class="n">open</span><span class="p">();</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>ProcessManager::enqueue()</code> では受信したメッセージによって実行可能になった process を
+処理待ちキュー <code>runq</code> に詰め、それからキューを消化するワーカースレッドに通知を送っている。(<code>gate</code> は <code>pthread_cond_t</code> のラッパです。)</p>
+
+<p>キューからメッセージをとりだすのは <code>ProcessManager::dequeue()</code>。</p>
+
+<figure class='code'><figcaption><span>process.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/process.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">ProcessBase</span><span class="o">*</span> <span class="n">ProcessManager</span><span class="o">::</span><span class="n">dequeue</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">synchronized</span> <span class="p">(</span><span class="n">runq</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">runq</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">process</span> <span class="o">=</span> <span class="n">runq</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+</span><span class='line'>      <span class="n">runq</span><span class="p">.</span><span class="n">pop_front</span><span class="p">();</span>
+</span><span class='line'>      <span class="c1">// Increment the running count of processes in order to support</span>
+</span><span class='line'>      <span class="c1">// the Clock::settle() operation (this must be done atomically</span>
+</span><span class='line'>      <span class="c1">// with removing the process from the runq).</span>
+</span><span class='line'>      <span class="n">__sync_fetch_and_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">running</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="n">process</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>そしてこれを呼ぶのは <code>schedule()</code> 関数。さっき <code>open()</code> されていた gate をまっているのはこのループ。</p>
+
+<figure class='code'><figcaption><span>process.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/process.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span><span class="o">*</span> <span class="n">schedule</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">arg</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span> <span class="o">=</span> <span class="n">process_manager</span><span class="o">-&gt;</span><span class="n">dequeue</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">process</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">Gate</span><span class="o">::</span><span class="n">state_t</span> <span class="n">old</span> <span class="o">=</span> <span class="n">gate</span><span class="o">-&gt;</span><span class="n">approach</span><span class="p">();</span>
+</span><span class='line'>      <span class="n">process</span> <span class="o">=</span> <span class="n">process_manager</span><span class="o">-&gt;</span><span class="n">dequeue</span><span class="p">();</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">process</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">gate</span><span class="o">-&gt;</span><span class="n">arrive</span><span class="p">(</span><span class="n">old</span><span class="p">);</span> <span class="c1">// Wait at gate if idle.</span>
+</span><span class='line'>        <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">gate</span><span class="o">-&gt;</span><span class="n">leave</span><span class="p">();</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">process_manager</span><span class="o">-&gt;</span><span class="n">resume</span><span class="p">(</span><span class="n">process</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この関数は libprocess の初期化中にワーカスレッドとして起動される。</p>
+
+<figure class='code'><figcaption><span>process.cpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/process.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">initialize</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">delegate</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">cpus</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">pthread_t</span> <span class="kr">thread</span><span class="p">;</span> <span class="c1">// For now, not saving handles on our threads.</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="kr">thread</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">schedule</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">LOG</span><span class="p">(</span><span class="n">FATAL</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Failed to initialize, pthread_create&quot;</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ワーカスレッドは CPU の数だけつくられるようだ。
+<a href="http://www.eecs.harvard.edu/~mdw/proj/seda/">SEDA</a> から脈々と生き続ける
+ノンブロッキングでマルチスレッドの血筋・・・なのはいいとして、
+起動したスレッドを止める様子がないのは心配。
+サーバって graceful に停止できないと <a href="http://valgrind.org/">Valgrind</a> や <a href="http://www.chromium.org/developers/testing/addresssanitizer">ASAN</a> で
+メモリリークをチェックするのが大変だとおもうんだけど、このスレッド自体は何も資源を持っていないので放置してプロセス抜けても大丈夫ということなのかなあ。男らしい・・・。</p>
+
+<p>それはさておき <code>ProcessManager::resume()</code> をみると&#8230;</p>
+
+<figure class='code'><figcaption><span>process.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">ProcessManager</span><span class="o">::</span><span class="n">resume</span><span class="p">(</span><span class="n">ProcessBase</span><span class="o">*</span> <span class="n">process</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">__process__</span> <span class="o">=</span> <span class="n">process</span><span class="p">;</span> <span class="c1">// __process__ はスレッドローカル変数</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">blocked</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">terminate</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">blocked</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">Event</span><span class="o">*</span> <span class="n">event</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">process</span><span class="o">-&gt;</span><span class="n">lock</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">process</span><span class="o">-&gt;</span><span class="n">events</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">event</span> <span class="o">=</span> <span class="n">process</span><span class="o">-&gt;</span><span class="n">events</span><span class="p">.</span><span class="n">front</span><span class="p">();</span>
+</span><span class='line'>        <span class="n">process</span><span class="o">-&gt;</span><span class="n">events</span><span class="p">.</span><span class="n">pop_front</span><span class="p">();</span>
+</span><span class='line'>        <span class="n">process</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">ProcessBase</span><span class="o">::</span><span class="n">RUNNING</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">process</span><span class="o">-&gt;</span><span class="n">state</span> <span class="o">=</span> <span class="n">ProcessBase</span><span class="o">::</span><span class="n">BLOCKED</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">blocked</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">process</span><span class="o">-&gt;</span><span class="n">unlock</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">blocked</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Now service the event.</span>
+</span><span class='line'>      <span class="k">try</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">process</span><span class="o">-&gt;</span><span class="n">serve</span><span class="p">(</span><span class="o">*</span><span class="n">event</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">catch</span> <span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;libprocess: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">process</span><span class="o">-&gt;</span><span class="n">pid</span>
+</span><span class='line'>                  <span class="o">&lt;&lt;</span> <span class="s">&quot; terminating due to &quot;</span>
+</span><span class='line'>                  <span class="o">&lt;&lt;</span> <span class="n">e</span><span class="p">.</span><span class="n">what</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">terminate</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">catch</span> <span class="p">(...)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">std</span><span class="o">::</span><span class="n">cerr</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;libprocess: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">process</span><span class="o">-&gt;</span><span class="n">pid</span>
+</span><span class='line'>                  <span class="o">&lt;&lt;</span> <span class="s">&quot; terminating due to unknown exception&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">terminate</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">delete</span> <span class="n">event</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="n">terminate</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">cleanup</span><span class="p">(</span><span class="n">process</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">__process__</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">CHECK_GE</span><span class="p">(</span><span class="n">running</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">__sync_fetch_and_sub</span><span class="p">(</span><span class="o">&amp;</span><span class="n">running</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>渡されたプロセスのキューからイベントを <code>pop_front()</code> して、排他処理やリトライなどをしつつプロセスにそれを <code>serve()</code> するのだった。
+この <code>resume()</code> が ProcessManager のメソッドである必要がどこにあるのか、
+あとスレッドローカルの <code>operator=()</code> を定義してるヒマがったらスレッドローカルいらないデザインにしてほしい、
+そして <code>catch(...)</code> はヤバいだろう・・・など色々と弱音を吐きたくなったりもするけれど私は元気です。</p>
+
+<p>とにかく <code>post()</code> されたイベント(メッセージ)は Process のイベントキューに入り、Process は ProcessManager の実行待ちキューに入り、次にワーカスレッド <code>schedule()</code> に取り出され、
+スレッドはキューから Process をとりだし、Process に溜まっていたイベントをその Process 自身に食わせて消化する。</p>
+
+<p>同一 OS プロセス内 Process のメッセージ通信がどうおこるかはこれでだいたいわかった。
+次はプロセスをまたいだ通信に目を向け、見て見ぬふりをしたもう一人のマネージャに話を進めよう。</p>
+
+<h2>SocketManger</h2>
+
+<figure class='code'><figcaption><span>process.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">SocketManager</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">send</span><span class="p">(</span><span class="n">Encoder</span><span class="o">*</span> <span class="n">encoder</span><span class="p">,</span> <span class="kt">int</span> <span class="n">s</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">persist</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">send</span><span class="p">(</span><span class="k">const</span> <span class="n">Response</span><span class="o">&amp;</span> <span class="n">response</span><span class="p">,</span> <span class="kt">int</span> <span class="n">s</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">persist</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">send</span><span class="p">(</span><span class="n">Message</span><span class="o">*</span> <span class="n">message</span><span class="p">);</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="n">Socket</span> <span class="n">accepted</span><span class="p">(</span><span class="kt">int</span> <span class="n">s</span><span class="p">);</span>
+</span><span class='line'>  <span class="kt">void</span> <span class="n">close</span><span class="p">(</span><span class="kt">int</span> <span class="n">s</span><span class="p">);</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Map from UPID (local/remote) to process.</span>
+</span><span class='line'>  <span class="n">map</span><span class="o">&lt;</span><span class="n">UPID</span><span class="p">,</span> <span class="n">set</span><span class="o">&lt;</span><span class="n">ProcessBase</span><span class="o">*&gt;</span> <span class="o">&gt;</span> <span class="n">links</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Collection of all actice sockets.</span>
+</span><span class='line'>  <span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">Socket</span><span class="o">&gt;</span> <span class="n">sockets</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Collection of sockets that should be disposed when they are</span>
+</span><span class='line'>  <span class="c1">// finished being used (e.g., when there is no more data to send on</span>
+</span><span class='line'>  <span class="c1">// them).</span>
+</span><span class='line'>  <span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">dispose</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Map from socket to node (ip, port).</span>
+</span><span class='line'>  <span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">Node</span><span class="o">&gt;</span> <span class="n">nodes</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Maps from node (ip, port) to temporary sockets (i.e., they will</span>
+</span><span class='line'>  <span class="c1">// get closed once there is no more data to send on them).</span>
+</span><span class='line'>  <span class="n">map</span><span class="o">&lt;</span><span class="n">Node</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">temps</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Maps from node (ip, port) to persistent sockets (i.e., they will</span>
+</span><span class='line'>  <span class="c1">// remain open even if there is no more data to send on them).  We</span>
+</span><span class='line'>  <span class="c1">// distinguish these from the &#39;temps&#39; collection so we can tell when</span>
+</span><span class='line'>  <span class="c1">// a persistant socket has been lost (and thus generate</span>
+</span><span class='line'>  <span class="c1">// ExitedEvents).</span>
+</span><span class='line'>  <span class="n">map</span><span class="o">&lt;</span><span class="n">Node</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">persists</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Map from socket to outgoing queue.</span>
+</span><span class='line'>  <span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">queue</span><span class="o">&lt;</span><span class="n">Encoder</span><span class="o">*&gt;</span> <span class="o">&gt;</span> <span class="n">outgoing</span><span class="p">;</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>何種類かのテーブルを管理している。Boost には bimap あるで・・・とかまあそういう姑発言はさておき、
+<code>int</code> はソケットの fd だとおもえばよい。 <code>Node</code> はリモートにある OS プロセスを抽象している。</p>
+
+<figure class='code'><figcaption><span>process.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">Node</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">Node</span><span class="p">(</span><span class="n">uint32_t</span> <span class="n">_ip</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">uint16_t</span> <span class="n">_port</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'>    <span class="o">:</span> <span class="n">ip</span><span class="p">(</span><span class="n">_ip</span><span class="p">),</span> <span class="n">port</span><span class="p">(</span><span class="n">_port</span><span class="p">)</span> <span class="p">{}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="n">uint32_t</span> <span class="n">ip</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">uint16_t</span> <span class="n">port</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>まあ抽象といってもこれだけなのだけれど・・・</p>
+
+<p>ネットワークのイベントループには <a href="http://software.schmorp.de/pkg/libev.html">libev</a> が使われており、
+そこに <a href="https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/decoder.hpp">encoder.hpp</a>,
+<a href="https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/decoder.hpp">decoder.hpp</a> からなるマイクロフレームワークがかぶせてある。
+このコードはどうでもいい。ただ libprocess 間の通信には HTTP を使っていることがわかる。</p>
+
+<p>なお libev のイベントループも専用のスレッドを持っている。</p>
+
+<figure class='code'><figcaption><span>process.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span><span class="o">*</span> <span class="n">serve</span><span class="p">(</span><span class="kt">void</span><span class="o">*</span> <span class="n">arg</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">ev_loop</span><span class="p">(((</span><span class="k">struct</span> <span class="n">ev_loop</span><span class="o">*</span><span class="p">)</span> <span class="n">arg</span><span class="p">),</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">return</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="kt">void</span> <span class="n">initialize</span><span class="p">(</span><span class="k">const</span> <span class="n">string</span><span class="o">&amp;</span> <span class="n">delegate</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="cp">#ifdef __sun__</span>
+</span><span class='line'>  <span class="n">loop</span> <span class="o">=</span> <span class="n">ev_default_loop</span><span class="p">(</span><span class="n">EVBACKEND_POLL</span> <span class="o">|</span> <span class="n">EVBACKEND_SELECT</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#else</span>
+</span><span class='line'>  <span class="n">loop</span> <span class="o">=</span> <span class="n">ev_default_loop</span><span class="p">(</span><span class="n">EVFLAG_AUTO</span><span class="p">);</span>
+</span><span class='line'><span class="cp">#endif </span><span class="c1">// __sun__</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ev_async_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">async_watcher</span><span class="p">,</span> <span class="n">handle_async</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">ev_async_start</span><span class="p">(</span><span class="n">loop</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">async_watcher</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ev_timer_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">timeouts_watcher</span><span class="p">,</span> <span class="n">handle_timeouts</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="mf">2100000.0</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">ev_timer_again</span><span class="p">(</span><span class="n">loop</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">timeouts_watcher</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">ev_io_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">server_watcher</span><span class="p">,</span> <span class="n">accept</span><span class="p">,</span> <span class="n">__s__</span><span class="p">,</span> <span class="n">EV_READ</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">ev_io_start</span><span class="p">(</span><span class="n">loop</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">server_watcher</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="n">pthread_t</span> <span class="kr">thread</span><span class="p">;</span> <span class="c1">// For now, not saving handles on our threads.</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">pthread_create</span><span class="p">(</span><span class="o">&amp;</span><span class="kr">thread</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">,</span> <span class="n">serve</span><span class="p">,</span> <span class="n">loop</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">LOG</span><span class="p">(</span><span class="n">FATAL</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Failed to initialize, pthread_create&quot;</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>SocketManager のコードは特段面白くないのであまり深くは立ち入らない。
+ソケットの accept やらなんやらはすっとばしてデータの受信部分だけはながめておこう。</p>
+
+<figure class='code'><figcaption><span>process.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">recv_data</span><span class="p">(</span><span class="k">struct</span> <span class="n">ev_loop</span><span class="o">*</span> <span class="n">loop</span><span class="p">,</span> <span class="n">ev_io</span><span class="o">*</span> <span class="n">watcher</span><span class="p">,</span> <span class="kt">int</span> <span class="n">revents</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">DataDecoder</span><span class="o">*</span> <span class="n">decoder</span> <span class="o">=</span> <span class="p">(</span><span class="n">DataDecoder</span><span class="o">*</span><span class="p">)</span> <span class="n">watcher</span><span class="o">-&gt;</span><span class="n">data</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">length</span> <span class="o">=</span> <span class="n">recv</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>      <span class="c1">// Decode as much of the data as possible into HTTP requests.</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">deque</span><span class="o">&lt;</span><span class="n">Request</span><span class="o">*&gt;&amp;</span> <span class="n">requests</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">-&gt;</span><span class="n">decode</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">length</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">requests</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">foreach</span> <span class="p">(</span><span class="n">Request</span><span class="o">*</span> <span class="n">request</span><span class="p">,</span> <span class="n">requests</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">process_manager</span><span class="o">-&gt;</span><span class="n">handle</span><span class="p">(</span><span class="n">decoder</span><span class="o">-&gt;</span><span class="n">socket</span><span class="p">(),</span> <span class="n">request</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>受信したデータが Request オブジェクトとして復号化され、ProcessManager に受け渡されているのがわかる。
+ここがプロセス間通信の終点。</p>
+
+<p>ProcessManager はソケットみたいな IO に依存しないクラスなのかとおもってたけど <code>socket</code> をわたしてるね。
+オブジェクトの責任分担がリベラルだ。歌って踊れるクラスたちよ&#8230;</p>
+
+<figure class='code'><figcaption><span>process.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">bool</span> <span class="n">ProcessManager</span><span class="o">::</span><span class="n">handle</span><span class="p">(</span>
+</span><span class='line'>    <span class="k">const</span> <span class="n">Socket</span><span class="o">&amp;</span> <span class="n">socket</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">Request</span><span class="o">*</span> <span class="n">request</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="n">CHECK</span><span class="p">(</span><span class="n">request</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Check if this is a libprocess request (i.e., &#39;User-Agent:</span>
+</span><span class='line'>  <span class="c1">// libprocess/id@ip:port&#39;) and if so, parse as a message.</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">libprocess</span><span class="p">(</span><span class="n">request</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">Message</span><span class="o">*</span> <span class="n">message</span> <span class="o">=</span> <span class="n">parse</span><span class="p">(</span><span class="n">request</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">message</span> <span class="o">!=</span> <span class="nb">NULL</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">delete</span> <span class="n">request</span><span class="p">;</span>
+</span><span class='line'>      <span class="c1">// TODO(benh): Use the sender PID in order to capture</span>
+</span><span class='line'>      <span class="c1">// happens-before timing relationships for testing.</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">deliver</span><span class="p">(</span><span class="n">message</span><span class="o">-&gt;</span><span class="n">to</span><span class="p">,</span> <span class="k">new</span> <span class="n">MessageEvent</span><span class="p">(</span><span class="n">message</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">VLOG</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Failed to handle libprocess request: &quot;</span>
+</span><span class='line'>            <span class="o">&lt;&lt;</span> <span class="n">request</span><span class="o">-&gt;</span><span class="n">method</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">request</span><span class="o">-&gt;</span><span class="n">path</span>
+</span><span class='line'>            <span class="o">&lt;&lt;</span> <span class="s">&quot; (User-Agent: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">request</span><span class="o">-&gt;</span><span class="n">headers</span><span class="p">[</span><span class="s">&quot;User-Agent&quot;</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;)&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">delete</span> <span class="n">request</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>HTTP のリクエストが libprocess の Message へとパースされ、宛先プロセスに <code>deliver()</code> されるのがわかる。</p>
+
+<h2>Future</h2>
+
+<p>さて、libprocess にはスレッド周りのクラスが色々はいっている。特にあちこちで使われているのが <strong>Future</strong>。
+普通に書くとブロッキングしそうな API は、だいたい Future で非同期化されている。</p>
+
+<p>たとえば libprocess には <code>Statistics</code> というメトリクス集計クラスがある。Statistics クラスの API は Future でモデルされている。</p>
+
+<figure class='code'><figcaption><span>statistics.hpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/include/process/statistics.hpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">Statistics</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">Statistics</span><span class="p">(</span><span class="k">const</span> <span class="n">Duration</span><span class="o">&amp;</span> <span class="n">window</span><span class="p">);</span>
+</span><span class='line'>  <span class="o">~</span><span class="n">Statistics</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Returns the time series of a statistic.</span>
+</span><span class='line'>  <span class="n">process</span><span class="o">::</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">Seconds</span><span class="p">,</span> <span class="kt">double</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">timeseries</span><span class="p">(</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">context</span><span class="p">,</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">Option</span><span class="o">&lt;</span><span class="n">Seconds</span><span class="o">&gt;&amp;</span> <span class="n">start</span> <span class="o">=</span> <span class="n">None</span><span class="p">(),</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">Option</span><span class="o">&lt;</span><span class="n">Seconds</span><span class="o">&gt;&amp;</span> <span class="n">stop</span> <span class="o">=</span> <span class="n">None</span><span class="p">());</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Returns the latest value of a statistic.</span>
+</span><span class='line'>  <span class="n">process</span><span class="o">::</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">Option</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span> <span class="o">&gt;</span> <span class="n">get</span><span class="p">(</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">context</span><span class="p">,</span>
+</span><span class='line'>      <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ちなみになぜ集計の結果取得みたいのが非同期かというと、
+独立した Process である <a href="https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/statistics.cpp">StatisticsProcess</a>が集計処理をしているから。
+アクター大活躍。libprocess の中にかぎらず、Mesos 自体の API も Future 主体で書かれている。</p>
+
+<p>その Future を見てみよう:</p>
+
+<figure class='code'><figcaption><span>future.hpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/include/process/future.hpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+<span class='line-number'>75</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// Definition of a &quot;shared&quot; future. A future can hold any</span>
+</span><span class='line'><span class="c1">// copy-constructible value. A future is considered &quot;shared&quot; because</span>
+</span><span class='line'><span class="c1">// by default a future can be accessed concurrently.</span>
+</span><span class='line'><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Future</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>  <span class="c1">// Constructs a failed future.</span>
+</span><span class='line'>  <span class="k">static</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">failed</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">message</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Helpers to get the current state of this future.</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">isPending</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">isReady</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">isDiscarded</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">isFailed</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">discard</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">...</span>
+</span><span class='line'>  <span class="c1">// Waits for this future to become ready, discarded, or failed.</span>
+</span><span class='line'>  <span class="kt">bool</span> <span class="n">await</span><span class="p">(</span><span class="k">const</span> <span class="n">Duration</span><span class="o">&amp;</span> <span class="n">duration</span> <span class="o">=</span> <span class="n">Seconds</span><span class="p">(</span><span class="o">-</span><span class="mf">1.0</span><span class="p">))</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Return the value associated with this future, waits indefinitely</span>
+</span><span class='line'>  <span class="c1">// until a value gets associated or until the future is discarded.</span>
+</span><span class='line'>  <span class="n">T</span> <span class="n">get</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Returns the failure message associated with this future.</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">failure</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Installs callbacks for the specified events and returns a const</span>
+</span><span class='line'>  <span class="c1">// reference to &#39;this&#39; in order to easily support chaining.</span>
+</span><span class='line'>  <span class="k">const</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">onReady</span><span class="p">(</span><span class="k">const</span> <span class="n">ReadyCallback</span><span class="o">&amp;</span> <span class="n">callback</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">const</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">onFailed</span><span class="p">(</span><span class="k">const</span> <span class="n">FailedCallback</span><span class="o">&amp;</span> <span class="n">callback</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">const</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">onDiscarded</span><span class="p">(</span><span class="k">const</span> <span class="n">DiscardedCallback</span><span class="o">&amp;</span> <span class="n">callback</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">const</span> <span class="n">Future</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">onAny</span><span class="p">(</span><span class="k">const</span> <span class="n">AnyCallback</span><span class="o">&amp;</span> <span class="n">callback</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Installs callbacks that get executed when this future is ready</span>
+</span><span class='line'>  <span class="c1">// and associates the result of the callback with the future that is</span>
+</span><span class='line'>  <span class="c1">// returned to the caller (which may be of a different type).</span>
+</span><span class='line'>  <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">Future</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span> <span class="n">then</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">tr1</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;&amp;</span> <span class="n">f</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">Future</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span> <span class="n">then</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">tr1</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">X</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;&amp;</span> <span class="n">f</span><span class="p">)</span> <span class="k">const</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Helpers for the compiler to be able to forward std::tr1::bind results.</span>
+</span><span class='line'>  <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">X</span><span class="o">&gt;</span>
+</span><span class='line'>  <span class="n">Future</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span> <span class="n">then</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">tr1</span><span class="o">::</span><span class="n">_Bind</span><span class="o">&lt;</span><span class="n">X</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="kt">void</span><span class="p">))(</span><span class="kt">void</span><span class="p">)</span><span class="o">&gt;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="k">const</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">then</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">tr1</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="n">X</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span><span class="p">)</span><span class="o">&gt;</span><span class="p">(</span><span class="n">b</span><span class="p">));</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>  <span class="k">friend</span> <span class="k">class</span> <span class="nc">Promise</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>  <span class="k">enum</span> <span class="n">State</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">PENDING</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">READY</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">FAILED</span><span class="p">,</span>
+</span><span class='line'>    <span class="n">DISCARDED</span><span class="p">,</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="kt">int</span><span class="o">*</span> <span class="n">refs</span><span class="p">;</span>
+</span><span class='line'>  <span class="kt">int</span><span class="o">*</span> <span class="n">lock</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">State</span><span class="o">*</span> <span class="n">state</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">T</span><span class="o">**</span> <span class="n">t</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">**</span> <span class="n">message</span><span class="p">;</span> <span class="c1">// Message associated with failure.</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">ReadyCallback</span><span class="o">&gt;*</span> <span class="n">onReadyCallbacks</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">FailedCallback</span><span class="o">&gt;*</span> <span class="n">onFailedCallbacks</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">DiscardedCallback</span><span class="o">&gt;*</span> <span class="n">onDiscardedCallbacks</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">std</span><span class="o">::</span><span class="n">queue</span><span class="o">&lt;</span><span class="n">AnyCallback</span><span class="o">&gt;*</span> <span class="n">onAnyCallbacks</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">Latch</span><span class="o">*</span> <span class="n">latch</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="p">...</span> <span class="c1">// Promise&lt;T&gt; の定義がつづく...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この Future は <a href="http://docs.oracle.com/javase/7/docs/api/java/util/concurrent/Future.html">Java の Future</a> よりは
+<a href="http://docs.scala-lang.org/overviews/core/futures.html">Scala の Future</a> に近い。ノンブロッキングがメインで、ブロッキングにもなる。</p>
+
+<p>libprocess のようなノンブロッキング主体のフレームワークで、 <code>Future::get()</code> のようなブロッキング API を提供するのが良いことなのか、私にはわからない。
+あまりカジュアルにブロックされてしまうとループが回らず性能を落としてしまう。Scala 版 Future の API はブロッキングすると目立つ嫌がらせの仕組みがあるが、
+この Future にはそれがない。
+(ついでに調べてみると、 <a href="http://twitter.github.com/finagle/">Finagle</a> がつかっている
+<a href="https://github.com/twitter/util/blob/master/util-core/src/main/scala/com/twitter/util/Future.scala">twitter.util の Future</a> にも
+カジュアルブロック API がある。しかもよりによって <code>apply()</code>&#8230;)</p>
+
+<h2>synchronized</h2>
+
+<p>最近の C++ なコードをみると、だいたい Java を模した <code>synchronized()</code> マクロが定義されている。
+<a href="https://github.com/facebook/folly/blob/master/folly/Synchronized.h">Facebook Folly</a>,
+<a href="https://github.com/pfi/pficommon/blob/master/src/concurrent/lock.h">pficommon</a>&#8230;そして libprocess にもちゃんとあった。</p>
+
+<figure class='code'><figcaption><span>synchronized.hpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/synchronized.hpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Synchronized</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">Synchronized</span><span class="p">(</span><span class="n">Synchronizable</span> <span class="o">*</span><span class="n">_synchronizable</span><span class="p">)</span>
+</span><span class='line'>    <span class="o">:</span> <span class="n">synchronizable</span><span class="p">(</span><span class="n">_synchronizable</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">synchronizable</span><span class="o">-&gt;</span><span class="n">acquire</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="o">~</span><span class="n">Synchronized</span><span class="p">()</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>    <span class="n">synchronizable</span><span class="o">-&gt;</span><span class="n">release</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">operator</span> <span class="kt">bool</span> <span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="kc">true</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">Synchronizable</span> <span class="o">*</span><span class="n">synchronizable</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="cp">#define synchronized(s)                                                 \</span>
+</span><span class='line'><span class="cp">  if (Synchronized __synchronized ## s = Synchronized(&amp;__synchronizable_ ## s))</span>
+</span><span class='line'><span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>私の中ではこれがあると若者 C++ に認定される(根拠なし)。
+Chromium にはなかった気がする。Boost もざっとみたかんじ見当たらず。</p>
+
+<h2>Stout</h2>
+
+<p>libprocess のコードで使われている汎用部品の一部は
+<a href="https://github.com/apache/mesos/tree/trunk/third_party/libprocess/third_party/stout">Stout</a> という独立したライブラリに切りだされている。
+といっても例のごとく libprocess と Mesos 以外では使われていないぽい。</p>
+
+<p>一年前の記憶にこんなライブラリはなかったので調べてみると、
+<a href="https://reviews.apache.org/r/5915/">数ヶ月前に mesos から libprocess 以下に移動され</a>,
+<a href="https://reviews.apache.org/r/9631/">一週間くらい前に libprocess/third_party に引っ越していた</a>。</p>
+
+<p>コードの中身は boost のラッパやその他雑多なコードを押しこんだ感じ。まあこういう場所がどこかに必要なのはわかる。
+揚げ足取りとしては <a href="https://github.com/apache/mesos/blob/trunk/third_party/libprocess/third_party/stout/include/stout/owned.hpp">Owned</a> クラスが
+<code>shared_ptr</code> を継承してるのを見てあとずさった。それ own しとらん・・・。</p>
+
+<figure class='code'><figcaption><span>owned.hpp </span><a href='https://github.com/apache/mesos/blob/trunk/third_party/libprocess/third_party/stout/include/stout/owned.hpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="c1">// Represents a uniquely owned pointer.</span>
+</span><span class='line'><span class="c1">//</span>
+</span><span class='line'><span class="c1">// TODO(bmahler): For now, Owned only provides shared_ptr semantics.</span>
+</span><span class='line'><span class="c1">// When we make the switch to C++11, we will change to provide</span>
+</span><span class='line'><span class="c1">// unique_ptr semantics. Consequently, each usage of Owned that</span>
+</span><span class='line'><span class="c1">// invoked a copy will have to be adjusted to use move semantics.</span>
+</span><span class='line'><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">Owned</span> <span class="o">:</span> <span class="k">public</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">Owned</span><span class="p">(</span><span class="n">T</span><span class="o">*</span> <span class="n">t</span><span class="p">)</span> <span class="o">:</span> <span class="n">boost</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="p">{}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>unique_ptr</code> にしたいならとりあえず <code>scoped_ptr</code> つかっとけとおもうのは年寄りですかね&#8230;</p>
+
+<h2>libprocess 所感</h2>
+
+<p>つかれた・・・一旦 libprocess だけで感想を書いてみたい。
+バランスの取り方がけっこうきわどくて、その不安を打ち明けずにはおれない。</p>
+
+<h4>アクターとブロッキングの混在</h4>
+
+<p>まずワーカスレッドで実装されたアクターとブロックできる Future の組み合わせが不安を誘う。
+Mesos のコードをみると、案の定ブロックして Future の結果を待つコードがある。というかノンブロッキングよりブロックする箇所の方が多い。</p>
+
+<p>ブロックするコードはだいたい独立した Process オブジェクトに分離されている。
+けれどそういうブロッキング Process が増えると、いずれブロックした Process がワーカスレッドを専有する日が来る。</p>
+
+<p>Actor などを使わないプログラミングスタイルだと、ブロックする処理には専用のスレッドを割り振ったりする。
+Chromium なんかだと IO スレッドというのがある。あんどろプログラミングでも似たようなことするよね。
+遅い処理は独立したスレッドを与えられるので、くるくる回って欲しい UI スレッドの反応性は保たれる。</p>
+
+<p>けれど libprocess みたいな Actor の実装は個々の Actor がブロックしない前提でデザインされているから、
+「ブロックする人向けスレッド」みたいな概念がない。そういう世界で前提に背いてブロッキングするのはトラブルの元に見える。
+わかった上で書いてるんだろうけど、傍目にはひやひやする。
+いっそシングルスレッドならそういうサボりが即座に症状にあらわれるので規律も働くんだけど、
+複数ワーカがあると問題が隠せちゃうのよなー・・・などと心配してしまうのは私が bureaucracy に毒されているからかもしれない。</p>
+
+<h4>専用ライブラリの分離</h4>
+
+<p>Bureaucracy といえば、ライブラリを分割したがる様子も不安を誘う。Mesos でしか使わないものをなぜ別のライブラリにするのか。
+普段いじっているコードと距離が離れるほど、遠くのコードをさわるのは億劫になる。相手を直すかわりに手元でちょろまかしたくなる。
+どうせなら近くに置いて、Mesos の一部として育てていけばいいのにと思ってしまう。
+そしてライブラリに分離されていると、いらないコードを消しにくい。
+誰か（そんな誰かはいないのに）が使っているかもしれないと気になるから。</p>
+
+<p>libprocess 自体の大きさも不安の種だ。どのコードもちゃんと Mesos から使われているのだろうか。
+むかしのプロジェクトで足した実験の残骸が残ったままだったりしないか。
+(というかけっこう残ってる。<a href="https://github.com/apache/mesos/blob/trunk/third_party/libprocess/src/net.hpp">SocketProcess</a>とか。)
+総アプリケーションに対し大きすぎるライブラリはおおむね不穏だと個人的には思う。
+Stout なんて、なんでライブラリをわけたんだろうね？ Mesos 以外に C++ のプロジェクトを始める気なのかしら・・・Scala つかおうよ・・・。</p>
+
+<h4>不穏なクラス名と testability</h4>
+
+<p>もうちょっと細かいデザインに目をやると、とにかくなんとか manager が多い。それが anecdotal なシグナルに過ぎないとはいえ不安を拭えない。
+案の定 manager は絵に描いたような god class で、なんでもつっこんでおこうといった風情。
+さらに困ったことに、よくあることではあるけれども、それがグローバル変数(static 変数だけどまあ似たようなもの)になってる。
+しかも実装が .cpp ファイルに隠れている。その Manager クラス単体でテストできないじゃん。</p>
+
+<p>実際テストはすくない。「テストはいつでも絶対必要！」と主張する原理主義者じゃないつもりだけど、
+インフラの一番下にある手堅く動いてほしいコンポーネントだし、分散システムなんてデバッグも大変なんだから、もうちょっとテストしておいてもいいと思うんだよね・・・。
+私の自信のなさがコードをそう読ませるという話はある。でも他人のコードを読みながらそんな内省に浸りたくないのでテストしといてほしいです。</p>
+
+<p>そういえば C++ のグローバルな manager で唐突に思い出したので文脈無関係に八つ当たりしておくと MongoDB! これもひどい。
+<a href="https://github.com/mongodb/mongo/blob/master/src/mongo/db/pdfile.h">DataFileMgr</a> というクラスとその実体 <code>theDataFileMgr</code> というグローバル変数があって、
+データベース全体からくまなく参照されている。たとえば BTree も <code>theDataFileMgr</code> に依存してる。これじゃ単体テストできないじゃん。
+そのくせ<a href="http://www.10gen.com/careers/positions/mongodb-database-kernel-engineer">データベースエンジニアの求人</a>には
+&#8220;You think writing unit tests is critical for great software&#8221; とか書いてあってもうね・・・・そういうことは <code>theDataFileMgr</code> をなくしてから言ってほしいものです。
+(MongoDB の名誉のためにいっておくと、単体の粒度じゃないけど<a href="https://github.com/mongodb/mongo/tree/master/src/mongo/dbtests">それなりにテストはある</a>。
+BTree をつくってコマンド発行してそれから BTree の変化をチェックする、というかんじでテストをかけるっぽい。)</p>
+
+<p>はー。話がそれた。libprocess にもどると、
+数少ない<a href="https://github.com/apache/mesos/tree/trunk/third_party/libprocess/src/tests">テスト</a>には
+<a href="https://code.google.com/p/gmock/">gmock</a> のようなテストマニア向けツールが使われており、その過剰さが一層切ない。
+それ Process を mock するんじゃなくて manager とか IO を mock するのに使おうぜ・・・</p>
+
+<p>それにしても gmock のほか gtest, protobuf, glog, perftools と全体的に検索 C++ ツール満載なのは、
+開発者のひとりが検索会社インターン経験者だからだろうか。</p>
+
+<h4>太ったスーパークラス</h4>
+
+<p>manager にならんで古くからよく知られるダメな C++ のパターン、巨大スーパークラスも健在。Process クラス。
+アプリケーションがこいつを継承する必然性ぜんぜんない。
+コールバックをインストールすれば済む話でその API まで自分で用意してるのに、なぜ継承させるのか。
+composition over inheritance とか今更過ぎてケチをつけるのも気が引ける。</p>
+
+<h4>delete</h4>
+
+<p>コードの細かいところはまあ、ふつう。ただ目につくのは <code>delete</code> の多さ。よのなかには smart pointers ってのがございましてな・・・。
+寿命の行方が複雑になりがちな非同期のコードで smart pointer や参照カウントを頼らずリークしてないのはそれはそれですごい。
+Actor というアイデアのシンプルさがこの堅牢性に寄与しているのは認める。</p>
+
+<h2>若さと勢い</h2>
+
+<p>こうやって色々ケチをつけたところで、動いている事実にまさるものはない。</p>
+
+<p>libprocess にせよ Mesos にせよ、 C++ を気に入った brilliant な若者が腕試しに書いてみたコードといった風情が強い。
+野心的なデザインを追い求めている。凝った言語機能を使いこなしている。
+一方で巨大プロジェクトで苦労しがちな落とし穴をひと通り踏んでいる。
+力の入り方がちぐはぐで、必要以上に凝っていると思えばすごく手薄な部分もある。</p>
+
+<p>広く使われている C++ のコードは歴史が長く、過去から積み重なったダメさにあふれるものが多い。
+libprocess (や Mesos) のコードにそういう汚れた感じはない。どちらかというとまだ青い。
+こういう若々しい C++ のコードって実際それなりにあるけれど、それがハイテク企業のインフラになろうとしている事実が私をそわそわさせるのだろう。
+去年コードを読んだ時はそのうちベテランが Finable で書き直すに違いないと思ったけどそんな様子もなく、
+やんちゃなコードのまま着々と開発が進んでいる。</p>
+
+<p>普通なら手堅く進めそうなインフラ仕事すら勢い余って若者の手に渡ってくる。
+アーキテクチャの整合性がどうこう言わずにあるものを使って乗り切る。
+これがスタートアップのダイナミズムってもんなんだろうね。
+読者の私が期待してた近未来モダーンインフラコードとはちょっと違ったけど、これはこれで面白い。</p>
+
+<p>Mesos の話をしようと思っていたのにその手前で疲れ果てました。やれやれ・・・万一傷が癒えたらつづく。
+Mesos は、だいたい NSDI の記事に書いてあるようなものが実装されている。
+書く気が起きなかったときのために実装の見どころを箇条書きしておくと</p>
+
+<ul>
+<li>実行プロセスの資源制御の仕組み (lxc, cgroups)</li>
+<li>外部フレームワークとのインテグレーション (Hadoop, Apache, MPI)</li>
+<li>ジョブの開始方法 (CLI)</li>
+<li>ZooKeeper の使われ方</li>
+</ul>
+
+
+<p>など。<a href="https://github.com/apache/mesos/tree/trunk/docs">ドキュメントも案外揃っている</a>のでその気になれば動かせそうなかんじ。
+Hadoop とかに慣れ親しんでいる人は気が向いたらおためしを。</p>
+
+<hr />
+
+<ul>
+<li>写真: <a href="http://www.flickr.com/photos/palojono/4027996707/">http://www.flickr.com/photos/palojono/4027996707/</a></li>
+</ul>
+
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/p/page/22/">&larr; Older</a>
+    
+    <a href="/blog/archives/">Blog Archives</a>
+    
+    <a class="next" href="/p/page/20/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br>
+Disclaimer: <span class="disclaimer">ここで述べられていることは個人的な意見に基づくものです。私の雇用者に一切の関係はありません。</span><br>
+Hajime Morrita - <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

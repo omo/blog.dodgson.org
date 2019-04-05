@@ -1,0 +1,453 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>steps to phantasien</title>
+  <meta name="author" content="Hajime Morrita">
+
+  
+  <meta name="description" content="コードレビューの話をいくつか見かけた.
+(1,
+2,
+3)
+私もはやりにのってなにか書いてみたい.
+といってもリンク先についてどうこう言う気はない.
+ふだんからぼんやり感じていることをテキストにしてみたい. コードレビューの様式 コードレビューのやりかたは色々ある.
+話の背景をあきらかにすべく &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://steps.dodgson.org/p/page/27/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="steps to phantasien" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<link href='//fonts.googleapis.com/css?family=Artifika|PT+Sans:regular,italic,bold,bolditalic|PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<meta property="fb:admins" content="542412357">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27326331-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1><a href="/">steps to phantasien</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="//google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:steps.dodgson.org" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives/">Archives</a></li>
+  <li><a href="/selection/">Selection</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/b/2012/08/18/code-review-styles/">コードレビューいろいろ</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-08-18T17:00:00-07:00" pubdate data-updated="true">Aug 18<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img src="http://farm3.staticflickr.com/2675/4014212691_75432684f3_z.jpg" alt="proofread" /></p>
+
+<p>コードレビューの話をいくつか見かけた.
+(<a href="http://d.hatena.ne.jp/xuwei/20120815/1344967481">1</a>,
+<a href="http://d.hatena.ne.jp/camlspotter/20120814/1344919762">2</a>,
+<a href="https://gist.github.com/73efe2f36ac1513c02a8">3</a>)
+私もはやりにのってなにか書いてみたい.
+といってもリンク先についてどうこう言う気はない.
+ふだんからぼんやり感じていることをテキストにしてみたい.</p>
+
+<h2>コードレビューの様式</h2>
+
+<p>コードレビューのやりかたは色々ある.
+話の背景をあきらかにすべく, まずは私が参加したり見聞きしたりしてきた方法を紹介したい.
+ただとりとめなく列挙しても見通しが悪いから, 方法を評価する軸を見立てておこう.</p>
+
+<p><strong><em>コードの粒度</em></strong>: 一回のレビューでレビュアが目を通すコードの量はどのくらいだろう.
+プロジェクト全体? モジュール単位, 機能単位, それともクラス単位?
+古典的なレビュー様式はこれら &lt;論理的な単位> でレビューをすることが多い.
+最近はブランチやコミットのような &lt;ひとまとまりの変更> を単位とする方法に人気がある.</p>
+
+<p>Github の Pull Request はブランチ単位. 後者のコードレビューといえる.</p>
+
+<p><strong><em>タイミング</em></strong>: コードはいつレビューされるのか. &lt;コミット前>, それとも&lt;コミット後>? コミット後の&lt;マージ前>?
+レポジトリはさておくと, レビューは毎日するの? 毎週? それとも不定期?</p>
+
+<p>Pull Request はマージ前で頻度は不定期.
+だれか #reviewtuesday みたいのを流行らせて反応の鈍いレビュアをなんとかしてほしい.</p>
+
+<p><strong><em>人数</em></strong>: レビューを担当するの人は誰か. 同僚&lt;一人>, チーム&lt;全員>, それとも誰か&lt;エライひと>?</p>
+
+<p><strong><em>形式度</em></strong>: レビューにはどんなルールやプロセスがあるのか. &lt;チェックリスト>やテンプレ書類, &lt;ツール>や静的解析はある?</p>
+
+<p>Tavis CI は Github の <a href="http://about.travis-ci.org/blog/announcing-pull-request-support/">Pull Request 相手にビルドを試せる</a>らしい.
+これはレビュー支援用ツールと言えなくもない.</p>
+
+<p><strong><em>メディア</em></strong>: レビューはどこで行われるのか. 同僚の机や会議室, それともメール, Github? なにか専用の&lt;ツール>はある?</p>
+
+<p>こんな軸に並べると, 形式間の違いがわかりやすくなると思う.</p>
+
+<p>準備はすんだ. 話を進めよう. 以下のリストは網羅的でもなく説明もおおざっぱだから,
+ここにない方法や詳しい手順を紹介したい人はどこかに書いて教えてください.</p>
+
+<h2>日次会議室レビュー</h2>
+
+<p>わたしが昔いた会社では, 開発チームに毎日 <strong><em>レビュー会議</em></strong> があった. チーム(4-10 人くらい)が会議室に集まって,
+チェックインされたコミットをひとつひとつ調べていく. 司会は個々のリビジョンごとに意見をつのり, 合意ができたら次にすすむ.</p>
+
+<p>コメントは議事録に残する. 該当リビジョンの作者はあとから議事録をみてコードを直す.
+レビュー内容を TODO リストとして管理するチームもあった. 反映漏れを避けるためだ.</p>
+
+<p>評価軸に並べてみると: &lt;チェックイン単位> で &lt;コミット前> に &lt;毎日>, &lt;チーム全員> が &lt;会議室> でレビューする方法.</p>
+
+<p>手際の悪い方法だった. 他人がコードをながめている間の待ちぼうけは退屈だったし, 縁が薄いコードのレビューにも付き合わされる.
+7-8 人の大きなチームにいた頃はいつも居眠りしていた. 当時 Twitter があったらずっとひやかしていたね.</p>
+
+<p>進みが遅いせいでチェックイン速度にレビューが追いつかず,
+ときどきレビューをスキップして HEAD に追いつくデノミが発生した.</p>
+
+<p>チームが 3 人くらいだと相対的なヒマさが下がるぶん効率よく感じた. それでもいま同じ事をしたら耐えられないと思う.
+若者が書いたコードの設計などに色々説教して &#8220;レビューは教育的効果があるなククク&#8221; なんて悦に浸っていたのを思い出し赤面する. なんてうっとおしい&#8230;
+せめてレビューと説教は別枠でやればよかった. 本題に集中しないとね.</p>
+
+<p>この方法が幅をきかせていたのはずっと昔, 何年も何年も前のこと. いまは違うと伝え聞く.
+誰かに薦めたい方法ではない. 懺悔目的で紹介しておく.</p>
+
+<h2>ブランチレビュー</h2>
+
+<p>ともだちから伝え聞いた方法. 私はやったことがない.</p>
+
+<p>そのチームは機能やバグ毎にブランチをする. そしてブランチを trunk へマージする前にレビューがあるのだそうな. Github の PR に似ている気もする.
+レビューはメールで依頼し, 指摘事項は専用のサイト(改造されたWiki?)にページをつくって記録する.
+指摘事項をすべて反映するとレビューは受理されいざマージとなる.</p>
+
+<p>&lt;ブランチ単位> で &lt;マージ前> に &lt;随時>, &lt;同僚一人> が &lt;メールと Wiki> でレビューする方法.</p>
+
+<p>教えてくれた人いわく &#8220;まあこんなもんじゃない?&#8221;. Poor man&#8217;s Pull Request ってとこか.</p>
+
+<h2>インスペクション風</h2>
+
+<p><img src="http://ecx.images-amazon.com/images/P/4320097270.01._SCLZZZZZZZ_.jpg" alt="inspection" /></p>
+
+<p>あるとき書籍 <a href="http://www.amazon.co.jp/dp/4320097270">ソフトウェアインスペクション</a> を読んで感化された私の先輩が &#8220;これはすばらしい&#8221; と熱弁した.
+その話をもとに簡易バージョンのインスペクションを試したことがある:</p>
+
+<p>レビューされるのはコード全体の一部. 開発者がチームにレビュー希望を申し出る.
+ややこしいコード, 新機能のためのまとまった量のコードなど, 書いたものに不安を感じたらレビューの出番だ.</p>
+
+<p>レビュイはレビュー対象のファイルリストをチーム全員(当時は 4 人くらい)に渡す.
+もちまわりのレビュー当番は数日後にレビュー会議を設定する.
+チームは会議までにコードをにらみ, 問題点をテキストファイルやシートにまとめておく.
+会議では各自が問題点を持ち寄って読み上げ, ひとつのリストにまとめる. 重複や意見の衝突はその場で議論する.</p>
+
+<p>&lt;機能(など)単位> で &lt;コミット後> に &lt;不定期> で &lt;チーム全員> が &lt;ファイルと会議> でレビューする方法.</p>
+
+<p>日次会議室レビューよりは効率的. 各人は自分のページでコードを眺められるし, レビュー対象も限られているからだ.
+一方で長続きもしなかった. レビュイの自己申告やレビュアの予習など, あまりに各人の善意や努力に依存しすぎていた.
+そのうえ自動化が弱く準備が面倒すぎた. ツールやプロセスで支援できればもうちょっとマシだったかもしれない.</p>
+
+<p>本家 &#8220;ソフトウェアインスペクション&#8221; はもっと厳密でめんどくさい. 実現可能性はさておき,
+定量的な品質に全力投球するレビューがどんなものかを考えるにはよい教材だとおもう.
+<a href="http://www.amazon.co.jp/dp/4526048194/">CMM</a> とか <a href="http://www.amazon.co.jp/dp/4798115355/">TSP</a> みたいのが好きな人むけ.</p>
+
+<h2>タスクカードと Review Board</h2>
+
+<p>コミット後のコードレビューを試したことがある.
+すでに trunk へコミットしたパッチを <a href="http://www.reviewboard.org/">Review Board</a> というツールでレビューする.</p>
+
+<p>そのプロジェクトでは agile 風の開発を目指し <a href="http://www.amazon.co.jp/dp/B00195GGM6">京大式カード</a> を壁に貼ってタスクを管理していた.
+コードレビューをプロセスに組み込むため, &#8220;タスクを完了するにはコードレビューが必要&#8221; とルールを定めた.</p>
+
+<p>開発者はコードを trunk にチェックインしたあと, その変更を Review Board にアップロードする.
+(Review Board にはアップロード作業を助けるツールがある.)
+するとレビュー用のページができるから, 開発者はチケットのカードにページ の ID を書いてレビュアに手渡す.
+レビュアは Review Board のサイト上でレビューする. 指摘をうけた開発者は修正をチェックインし, 差分を加えてパッチを更新する.
+問題が片付いたらレビュアがカードにハンコを押して開発者に返す.</p>
+
+<p>&lt;機能(など)単位> で &lt;コミット後> に &lt;随時>, &lt;同僚一人(以上)> が &lt;ツール(Review Board)> でレビューする方法.</p>
+
+<p>この方法はアナログのカジュアルさとツールの利便性がバランスしており気にいっていた.
+ただチームの小ささに依存する方法でもあった.</p>
+
+<p>あと Review Board はコミット前レビュー向けにデザインされている機能が多く,
+コミット後レビューで運用するとちぐはぐな部分はあった.
+レポジトリに svn を使う手前チェックイン前レビューは難しかったので諦めていた.</p>
+
+<h2>コミット後レビュー</h2>
+
+<p>それほど一般的でないものの, コミット後レビューを使うプロジェクトは探せばある.
+たとえば <a href="http://cfe.llvm.org/">Clang</a> は trunk にコードがコミットされると
+<a href="http://lists.cs.uiuc.edu/mailman/listinfo/cfe-commits">メーリングリスト</a>に差分が流れる.
+レビューはその差分メールへの返信としてはじまる.</p>
+
+<p>&lt;コミット単位> で &lt;コミット後> に &lt;随時>, &lt;気が向いた人> が &lt;メーリングリスト> でレビューする.</p>
+
+<p>ハードコアだと思っていたコンパイラのコードが案外カジュアルに開発されていてびびる.
+なおこれはコミッタに限った話. 新参物は従来通りメーリングリストにパッチを投稿して&#8230;とやる.</p>
+
+<h2>レビューツールたち</h2>
+
+<p><img src="https://lh5.googleusercontent.com/-mvqP-nTm258/UDBVPzj5CAI/AAAAAAAAKKI/iMpkEimUtuk/s640/1345344830036.png" alt="image" /></p>
+
+<p><a href="http://www.reviewboard.org/">Review Board</a> や
+<a href="http://code.google.com/p/rietveld/">Rietveld</a>,
+<a href="http://code.google.com/p/gerrit/">Gerrit</a> のようなウェブベースのコードレビューツールは,
+特定のレビュー様式を想定している: &lt;パッチ単位> で &lt;コミット前> に &lt;指名した一人(以上)> が &lt;ウェブ上> でレビューする方法だ.</p>
+
+<p>ツールは似たりよったりだけれど, &#8220;&lt;指名した一人(以上)>&#8221; にはバリエーションがある.
+たとえば Chromium のソースツリーはディレクトリ毎に &#8220;オーナー&#8221; が決められており,
+チェックインには<a href="http://www.chromium.org/developers/owners-files-1">オーナーのレビューが求められている</a>.
+これはもともと検索会社由来の方法らしく,
+<a href="https://groups.google.com/a/chromium.org/forum/?fromgroups#!topic/chromium-dev/XL4UUKYWNxE%5B1-25%5D">Chromium には去年導入された.</a></p>
+
+<p>ツールにも細かい違いがある.
+たとえば Gerrit は Git と統合されているためパッチだけでなくブランチ単位でレビューできる.</p>
+
+<p>開発フローはどれもだいたい一緒.
+開発者はコードを書いてパッチやブランチをアップロードし, 所望するレビュアにレビューを頼む.
+通知を受け取ったレビュアはサイト上に指摘を書き残す. レビュイは指摘を反映したパッチをアップロードしなおす.
+レビュアが良しというまでこれを繰り返し, 最後にコードをコミットする.</p>
+
+<p>これらウェブ版レビューツールの先駆けは Python の親玉 Guido Van Rossum が検索会社向けに作った
+<a href="http://www.youtube.com/watch?v=sMql3Di4Kgc">Mondrian</a> だとおもう.
+これ以降, Github 以前の世代にうまれたウェブ企業は似たような仕組みを使っているところが多い, 気がする.
+たとえば Facebook は <a href="http://phabricator.org/">Phabricator</a> という類似のツールをもっている.
+Twitter は <a href="http://www.reviewboard.org/users/">Review Board を使っている</a> もよう.
+野次馬としては Phabricator が新しいぶん色々モダンでソーシャルにちがいないと勝手に期待している. PHP+MySQL が好きな他人は試して感想をおしらせください.</p>
+
+<p><img src="https://lh3.googleusercontent.com/--wqJP0ILkWA/UDBTm3w3c1I/AAAAAAAAKKA/U9exSFHXrlQ/s640/1345344409455.png" alt="Phabricator" /></p>
+
+<p>更に世代が進むと企業は Github に傾いているかんじ. Github はこうしたツールの進化形と捉えられているのだろう.</p>
+
+<h2>レビューツール以前</h2>
+
+<p>Mondrian や Github 世代の前は何が主流だったのか.
+源流のひとつは伝統的なオープンソースの世界にみられる.
+たとえば Linux Kernel はいまだに<a href="https://lkml.org/">メール</a>ベースでレビューをしているらしい. (<a href="http://lwn.net/Articles/464298/">ほんとに</a>?)
+検索会社も Mondrian 以前はメールを使っていたという.</p>
+
+<p>もうちょっとだけ新しい世代には Bugzilla がいる.
+Bugzilla を使うプロジェクトでは, バグページにパッチをアップロードし,
+ページ内の掲示板風スレッドでレビューの議論を進める.</p>
+
+<p>Bugzilla は <a href="https://bugzilla.mozilla.org/">Mozilla によって開発され</a>, <a href="https://bugs.webkit.org/">WebKit でも使われている</a>.
+Bugzilla にはファイルを添付できる以上の大仰なレビュー支援機能はない.
+そのパッチがレビュー要求であること, パッチのレビューが受理されたことを, フラグとして管理できるだけ.
+でもフラグをはじめとするメタ情報を検索でフィルタできるから, メールよりはレビューの進捗を把握しやすい.</p>
+
+<h2>異形のものたち</h2>
+
+<p>メールや Bugzilla といった古いスタイルのコードレビューは,
+古いソフトウェアと共に老いて消え行くだろう.
+けれど Linux Kernel や各種ブラウザのように元気なまま生きながらえてしまうことがある.
+すると古いプロセスはあやしげな改造を施され袋小路の異形に姿を変えていく.</p>
+
+<p>たとえば git には <a href="http://www.kernel.org/pub/software/scm/git/docs/git-am.html">git-am</a> や
+<a href="http://www.kernel.org/pub/software/scm/git/docs/git-send-email.html">git-send-mail</a> など
+Github 世代のウェブっ子からすると使い道のわからない機能がある. おそらく Linux Kernel みたいなメールベースのコードレビューに使われるのだろう.</p>
+
+<p>メールベースでも, こうしたツールのおかげで添付ファイルの扱いに煩わされることなくレビューに集中&#8230;できねえよ! アホか!
+と素直な反応が頭をよぎらないだろうか.</p>
+
+<p>Bugzilla には <a href="http://blog.fishsoup.net/2009/09/23/splinter-patch-review/">Splinter</a> と呼ばれる
+プラグインというか寄生スクリプトがある. Splinter をつかうと Bugzilla にアップロードされたパッチを
+ビジュアルに表示し, コードにインラインでコメントを追加, 表示できるようになる.
+まるで Rietveld のように &#8230; というかそれ以上 Bugzilla をいじめないで! どうかもうやめて! と魂の叫びが聞こえないか.</p>
+
+<p>WebKit Bugzilla は謹製スクリプトを使い Splinter と似た仕組みをそなえる.</p>
+
+<p><img src="https://lh6.googleusercontent.com/-pXtaErFGMcA/UDBWfLhtiGI/AAAAAAAAKKQ/wivcOkp6eEQ/s640/1345345147364.png" alt="image" /></p>
+
+<p>もうぜんぜん原型とどめてない&#8230;なお画面下にある緑のラベルはパッチがビルドに成功した印. 年寄りだって CI したい! のさ.</p>
+
+<p>これら古参現役巨大プロジェクトは:
+&lt;パッチやブランチ単位> で &lt;コミット前> に &lt;随時>, &lt;指名されたレビュア> が &lt;魔改造されたレガシーメディア> でレビューをしている.</p>
+
+<p>古くて大きなプロジェクトは, 周辺のプロセスやツールが現行インフラの上に積み上がっている.
+そのしがらみに足を取られ, なかなか新しいシステムに移行できない.
+プロジェクト運営が民主的なほどツール乗り換えへの反対を無視しにくいせいでもある.</p>
+
+<p>それでも SCM に限ると, Linux は BitKeeper から git へ, Mozilla は CVS から Mercurial に移行した.
+SCM は移行できてもコードレビューは移行できないのだなあ.
+レビューツールは単なるストレージである SCM と違い議論のためのメディアだから,
+そのぶんプロセスに露出している面積が大きいのだろう.
+でもがんばってなんとかしてほしいものです. いつの日か&#8230;</p>
+
+<h2>ペアプログラミング</h2>
+
+<p>話がそれた.</p>
+
+<p>最後に紹介するレビュー様式はペアプログラミング.
+ペアプログラミングでは互いに一挙手一投足を見届けているから,
+継続的にコードレビューをしているようなもの.</p>
+
+<p>少し前, WIRED にこんな記事が載っていた:
+&#8221;<a href="http://www.wired.com/wiredenterprise/2012/08/google-as-xerox-parc/all/">If Xerox PARC Invented the PC, Google Invented the Internet</a>&#8221;
+記事では検索会社のエースプログラマ Jeff Dean と Sanjay Ghemawat (GFS と MapReduce と BigTable を作った人たちだと思えばだいたいあってる)
+を取材している. なかでもあるエピソードが目を引く:</p>
+
+<blockquote><p>Even for Varda, who works on the team that oversees Google’s infrastructure, the two engineers are difficult to separate. “Jeff and Sanjay worked together to develop much of Google’s infrastructure and have always seemed basically joined at the hip,” says Varda. “It’s often hard to distinguish which of them really did what.</p>
+
+<p>“All code changes at Google require peer review prior to submission, but in Jeff and Sanjay’s case, often one will send a large code review to the other, and the other will immediately ‘LGTM’ it, because they wrote the change together in the first place.”
+LGTM is Google-speak for “looks good to me.”</p>
+
+<p>Varda means this quite literally. Over the years, Dean and Ghemawat made a habit of coding together while sitting at the same machine. Typically, Ghemawat does the typing. “He’s pickier about his spacing,” Dean says.</p></blockquote>
+
+<p>&#8230;</p>
+
+<blockquote><p>Google のインフラ統括チームで働く Varda から見ても, 二人のエンジニア (Jeff と Sanjay) を切り離して考えるのはむずかしい.
+&#8220;Jeff と Sanjay は一緒になって Google インフラの大部分を開発したのですが, 基本的にはいつも肩を並べていますね.&#8221;
+Varda はいう. &#8220;だから本当はどちらが何をしたのか, 大抵は区別のしようがないんです.&#8221;</p>
+
+<p>&#8220;Google ではコードに加えるすべての変更に対し, 提出前のピアレビューをしなければなりません. ところが Jeff と Sanjay の場合,
+一方がもう一方に巨大なコードレビューを送り, 送られた側が即座に LGTM するなんてことがしょっちゅうなのです.
+というのも二人はそもそも一緒にコードを書いているんですよね.&#8221;
+LGTM は Google 用語で &#8220;Looks good to me&#8221; を指す.</p>
+
+<p>Varda がいうことはおよそ文字通りだ. 何年ものあいだ, Dean と Ghemawat は同じマシンに向かい, 一緒に座ってコードを書く習慣を培ってきた.
+ふだんは Ghemawat がキーボードを叩く. &#8220;彼の方が空白に細かいんですよ&#8221; そう Dean は言う.</p></blockquote>
+
+<p>検索会社員は全員ペアプロすべきじゃね？などと浅はかな考えが頭をよぎりました.
+そして本題に入りそこねたまま長くなりすぎたのでたぶんつづく.</p>
+
+<p>写真: <a href="http://www.flickr.com/photos/sj_sanders/4014212691/">http://www.flickr.com/photos/sj_sanders/4014212691/</a></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/p/page/28/">&larr; Older</a>
+    
+    <a href="/blog/archives/">Blog Archives</a>
+    
+    <a class="next" href="/p/page/26/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br>
+Disclaimer: <span class="disclaimer">ここで述べられていることは個人的な意見に基づくものです。私の雇用者に一切の関係はありません。</span><br>
+Hajime Morrita - <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

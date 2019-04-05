@@ -1,0 +1,366 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>現場のフォーム - steps to phantasien</title>
+  <meta name="author" content="Hajime Morrita">
+
+  
+  <meta name="description" content="このごろ仕事の進みが悪く、しかもまったくの自業自得で肩を落としている。
+今日はそれをふりかえり明日への糧としたい。反省文。 仕事の進みは「遅い」だけ。動いてはいる。一歩一歩は正しい。
+でも一歩を踏み出すまでが遅い。正しい一歩を踏み出せる、正しい姿勢をとるのが遅い。
+背中を丸め足を引きずる。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://steps.dodgson.org/b/2014/08/01/forms-at-work/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="steps to phantasien" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<link href='//fonts.googleapis.com/css?family=Artifika|PT+Sans:regular,italic,bold,bolditalic|PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<meta property="fb:admins" content="542412357">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27326331-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1><a href="/">steps to phantasien</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="//google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:steps.dodgson.org" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives/">Archives</a></li>
+  <li><a href="/selection/">Selection</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">現場のフォーム</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-01T12:00:00-07:00" pubdate data-updated="true">Aug 1<span>st</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><img src="https://farm4.staticflickr.com/3378/3251735046_418337c6de_b_d.jpg" alt="Form" /></p>
+
+<p>このごろ仕事の進みが悪く、しかもまったくの自業自得で肩を落としている。
+今日はそれをふりかえり明日への糧としたい。反省文。</p>
+
+<p>仕事の進みは「遅い」だけ。動いてはいる。一歩一歩は正しい。
+でも一歩を踏み出すまでが遅い。正しい一歩を踏み出せる、正しい姿勢をとるのが遅い。
+背中を丸め足を引きずる。たとえばこんなふうに&#8230;</p>
+
+<h3>Bisection</h3>
+
+<p>ある昼下がりにバグ修正を頼まれた。リグレッション。ここ三ヶ月くらいで壊れたらしい。
+リグレッションを直す「正しい」一歩目は、二分探索で原因のリビジョンを探す bisection 作業だ。
+でもこのバグ、bisection が面倒そう。なんとなく原因の想像はつくからあたりをつけて直してしまおう・・・</p>
+
+<p>・・・半日たち、結局あたりはつかない。日が暮れてしょんぼり帰宅。
+翌朝気を取り直し bisection をしたら 2 時間でリビジョンの特定がおわる。あらら。
+しかも 30 分は bisection ツールの準備。バグの原因は凡ミス。さっさとなおしておしまい。</p>
+
+<h3>プロトタイピング</h3>
+
+<p>ある機能を作ることになった。締め切り近め。仕様はまだ曖昧で、動かさないと決められない。
+このとき「正しい」一歩目は・・・リグレッションの時ほど断言はできないけどたぶん・・・動くハックをでっちあげること、だろう。
+でもこの機能、今のコードの想定からはずいぶん外れてるなあ。汚いコードをまき散らすのは気が重い。まずリファクタリングしよう・・・</p>
+
+<p>・・・一週間後、わき出す山羊の群れを前にリファクタリングのおわる気配はない。締め切りがやばそうなので方針変更、ハックをつっこむ。
+要望していた相手に見せると、なんか違うね。やっぱりこうしようとバリエーションが提案される。
+あらら。これならリファクタリングいらないじゃん。ハックを巻き戻し新バージョンを実装。リリース。</p>
+
+<h3>リバート</h3>
+
+<p>ブランチ前日にクラッシュバグがやってきた。今度は bisection 済。私の(クラッシュではない)バグ修正がまずかった。
+クラッシュは何より深刻だから、このときの「正しい」一歩目はリバートだ。でも元のバグ修正も次のリリースに入れたい。
+今リバートするとブランチカットに間に合わない。Cherrypicking は作業も交渉も面倒だ。ここはリバートせずに直そう・・・</p>
+
+<p>・・・数日後、おまえのクラッシュ修正が新たなクラッシュを引き起こしているぞとつつかれる。
+あらら。失敗したクラッシュ修正と、もともとのしょぼいバグ修正を慌ててリバート。
+そしてそのリバートたちをリリースブランチにマージ。クラッシュは消える。</p>
+
+<h3>可視化デバッグ</h3>
+
+<p>ある高速化を実装してみた。速くはなったもののテストが失敗している。
+新しく足したデータ構造に不整合があるのだろう。「正しい」一歩は、この推測を確認すること。
+データ構造をダンプするコードを書き何カ所かに差し込めばわかりそう。
+でもダンプを書くのはちょっと手間だしビルドしなおしも遅い。
+とりあえずデバッガで変数をながめよう・・・</p>
+
+<p>・・・一時間後、ブレイクとコンティニューをぼんやり繰り返す自分に気づき我に返る。あらら。
+おもむろにダンプ関数をつけたし、表示内容を調整しつつ結果を睨む。
+あ、ここで不思議なノードができてるな、とかつぶやきつつ原因を特定し修正。</p>
+
+<h3>Deflake</h3>
+
+<p>翌日、先の高速化で足したテストが五回に一回くらい失敗すると知らされた。
+テストのタイミングに依存したバグ。このときの「正しい」一歩は、テストから flakiness, 不確実性を取り除くこと。
+でもタイミング調整はサーバにコードを足さねばならず、静的なデータだけに閉じたテストを諦めないといけない。
+サーバが挟まるとデバッグも面倒だ。とりあえず思い当たる節を直してみよう・・・</p>
+
+<p>・・・数時間後、試みた修正で直ったと思ったら十回に一回は失敗する、を繰り返す自分に気づき我に返る。
+あらら。現実を受け入れテストを書き直す。ここで 0.5 秒 <code>sleep()</code> 。こっちは 1 秒。
+確実にバグを暴きはじめたテストを動かしつつ先に追加したダンプを有効にして眺める。
+不思議なノードがみつかる。原因を特定し修正。</p>
+
+<h3>開発環境</h3>
+
+<p>OS 固有のコードをもつモジュールに手を入れたい。
+Linux と Mac は手元にある。でも Windows がない。「正しい」一歩は Windows マシンを手に入れること(VM は遅すぎてだめ)。
+でも最近の Windows はよくわからないし環境をつくるのも面倒だ。さいわい Windows 固有部分のコードは単純そう。
+テストは try サーバ (CI) でも動かせるから、最悪そのログを見ながら直そう・・・</p>
+
+<p>・・・一週間後、書き上げた第一稿を CI に投げると案の定 Windows 上だけでテストが失敗する。
+山勘で直そうとするも赤いまま。数時間のターンアラウンドをもつ CI 相手にようやくバグを直したら、
+今度はライブラリの構成に問題があるとレビュアの指摘をうける。直して CI 再挑戦。今度はコンパイルすら通らない。
+エラーメッセージは意味不明。ようやく挫けて Windows マシンを注文する。え、在庫ないから届くのは一週間後？あらら。</p>
+
+<h3>リマインド</h3>
+
+<p>ある素朴なリファクタリングを済ませた。
+素朴とはいえ依存グラフの根元近くをさわったせいで変更範囲は広い。
+遠く離れたモジュールを仕切るよく知らない人にレビューを提出。
+忙しい人らしく反応がない。「正しい」一歩はたぶん隙を見て直談判。
+でも席が遠いしちょっと強面なんだよな。まあ順番に見てるよきっと。ほっとこう・・・</p>
+
+<p>・・・関係ないバグ修正に追われるうち週が明ける。あれどうなった？私の作業を待つ相手から問い合わせ。あらら。しまった。
+深呼吸してレビュアを訪問、すみませんけどレビューしてと頼む。
+「ああごめん見落としていた。だいぶ放置していたようで申し訳ない。次からはもっと強くリマインドしてくれよな。」LGTM.
+案外いいひとじゃんよ。</p>
+
+<h3>ブランチワーク</h3>
+
+<p>リファクタリングは続く。肝心の変更までたぶんあと 3 コミットくらい。
+準備コミットを 1 つ書いてみるも、これだけでは狙いが伝わらない雰囲気。
+「正しい」一歩はまず全体像を書き上げ、最初のコミットと全体の WIP の両方を相手に渡すこと。
+でもローカルコミットをため込むと序盤のレビュー指摘をとりこむのが面倒だなあ。 <code>rebase</code> がコンフリクトしまくる。
+まあいいやこのコミットだけ渡して別の仕事をしよう。あのひとがレビュアならわかってくれるよね・・・</p>
+
+<p>・・・翌朝レビューの返事が届く。「なんか不必要に複雑だけど何がしたいの？」あらら。ですよね・・・
+続きのコードを書きながら収まりの悪さに手を加えるうち最初のコミットは大げさすぎたと気づく。
+彼は正しかった。簡素になった一歩目と全体の WIP を投稿。即座に LGTM.</p>
+
+<h2>フォームの乱れ</h2>
+
+<p>暗い記憶はどこまでも続くけれどこのへんにしておこう。
+もたつく自分を直視し続けるのは精神衛生によくない。</p>
+
+<p>正しい一歩が何かはわかっている。でも踏み出せず脇に逸れて時間を無駄にする。同じ無駄を繰り返す。
+部屋の掃除や宿題を後回しにする小学生みたい。</p>
+
+<p>「正しい一歩」を踏み出せないのはたぶん、その中に苦手なものが混じっているからだと思う。
+苦手な環境、苦手なツール、苦手なコンポーネント、苦手なコーディング技法、苦手な人、苦手な会話。
+「苦手な」が大げさなら「面倒な」でもいい。苦手なもの、面倒なもの、
+手間がかかるものを前に足がふらつき、無駄骨の餌食になる。</p>
+
+<p>仕事を通じ克服した苦手もある。でも苦手の増える量に負けている。
+腕が悪いのか仕事が難しいのか、いずれにせよなんとかしたい。雇用が危ぶまれる。</p>
+
+<p>以前<a href="http://gihyo.jp/dev/serial/01/comparators/0005">プログラマの体力について書いた事がある</a>。
+この比喩を頼るなら、苦手を前に腰が引けるのは筋力不足で姿勢が崩れるようなものだろうか。
+重力にや水圧に負けフォームが乱れる。
+そういえば <a href="http://en.wikipedia.org/wiki/Kata_%28programming%29">Code Kata</a> なんてのもあったね。</p>
+
+<p>コード書き本体だけでなく、それをとりまくプラクティスにも同じ事が言える。
+たとえば Git を使い倒す体力、複数 OS を行き来する体力、レビュアをつつく体力。
+仕事の種類によって中身は色々だろうけれど、
+あえておおざっぱにこれを会社員プログラマの体力、現場のフォームと呼んでみたい。
+たりないと足下がふらつく、そんな何か。
+&#8221;<a href="http://www.amazon.co.jp/%E3%82%A2%E3%82%B8%E3%83%A3%E3%82%A4%E3%83%AB%E3%83%97%E3%83%A9%E3%82%AF%E3%83%86%E3%82%A3%E3%82%B9-%E9%81%94%E4%BA%BA%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9E%E3%81%AB%E5%AD%A6%E3%81%B6%E7%8F%BE%E5%A0%B4%E9%96%8B%E7%99%BA%E8%80%85%E3%81%AE%E7%BF%92%E6%85%A3-Venkat-Subramaniam/dp/4274066940%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D4274066940">習慣 </a>&#8221; とはよくいうけれど、
+フォームを正すのは習慣よりもがんばりのいる営みな気がするよ。</p>
+
+<p><a href="http://www.amazon.co.jp/%E3%82%A2%E3%82%B8%E3%83%A3%E3%82%A4%E3%83%AB%E3%83%97%E3%83%A9%E3%82%AF%E3%83%86%E3%82%A3%E3%82%B9-%E9%81%94%E4%BA%BA%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9E%E3%81%AB%E5%AD%A6%E3%81%B6%E7%8F%BE%E5%A0%B4%E9%96%8B%E7%99%BA%E8%80%85%E3%81%AE%E7%BF%92%E6%85%A3-Venkat-Subramaniam/dp/4274066940%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D4274066940"><img class="asin" src="http://ecx.images-amazon.com/images/I/51YiZblziqL.jpg" title="習慣 " /></a></p>
+
+<p>何かを得意にするのは長い道程だ。でも苦手でなくすだけならそこまでの労はない。
+低いはずの敷居を前に苦手意識をこじらせてしまうのはたぶん、
+余裕のない場面で実践を強いられたからだろう。
+締め切り前、休暇の前、上司の前。忙しい緊張の中で面倒はおこる。
+皮下脂肪を抱え準備運動もなくゲームに放り込まれるこの感じ、ちょっとトラウマになる。</p>
+
+<p>一方で、このストレスや後悔はフォームの乱れを脳裏に焼き付ける強いシグナルともなる。
+あとから見落とさずにすむのは不幸中の幸い。暴かれた弱点を少しずつ直して行こう。</p>
+
+<p>・・・捻ったその足首の、腫れが引いたらね。</p>
+
+<ul>
+<li>写真: <a href="https://flic.kr/p/5XkZxm">https://flic.kr/p/5XkZxm</a></li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Hajime Morrita</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-08-01T12:00:00-07:00" pubdate data-updated="true">Aug 1<span>st</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://steps.dodgson.org/b/2014/08/01/forms-at-work/" data-via="" data-counturl="http://steps.dodgson.org/b/2014/08/01/forms-at-work/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/b/2014/07/27/psa/" title="Previous Post: おしらせ: サーバを移動しました">&laquo; おしらせ: サーバを移動しました</a>
+      
+      
+        <a class="basic-alignment right" href="/b/2014/10/01/playing-with-rx-koans/" title="Next Post: Rx で Koan した">Rx で Koan した &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br>
+Disclaimer: <span class="disclaimer">ここで述べられていることは個人的な意見に基づくものです。私の雇用者に一切の関係はありません。</span><br>
+Hajime Morrita - <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
