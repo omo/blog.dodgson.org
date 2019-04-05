@@ -1,0 +1,2225 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>steps to phantasien</title>
+  <meta name="author" content="Hajime Morrita">
+
+  
+  <meta name="description" content="いいかげんあんどろでも勉強するかと 6 年遅れくらいで重い腰を上げかけている。気が重い。スマホとか知らないっすよ・・・。 あんどろ、というかスマホ固有の話題は色々あれど、その一つがタッチベースの UI なのは間違いない。そういえばタッチというのはどうやって実装されているんだろうか。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://steps.dodgson.org/p/page/10/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="steps to phantasien" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<link href='http://fonts.googleapis.com/css?family=Artifika|PT+Sans:regular,italic,bold,bolditalic|PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<meta property="fb:admins" content="542412357">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27326331-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1><a href="/">steps to phantasien</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:steps.dodgson.org" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives/">Archives</a></li>
+  <li><a href="/selection/">Selection</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/b/2014/07/05/life-of-touch/">Life of Touch</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-05T14:04:00-07:00" pubdate data-updated="true">Jul 5<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p><img src="https://farm3.staticflickr.com/2923/14638870994_4802da98e5_b.jpg" alt="touch" /></p>
+
+<p>いいかげんあんどろでも勉強するかと 6 年遅れくらいで重い腰を上げかけている。気が重い。スマホとか知らないっすよ・・・。</p>
+
+<p>あんどろ、というかスマホ固有の話題は色々あれど、その一つがタッチベースの UI なのは間違いない。そういえばタッチというのはどうやって実装されているんだろうか。それを一通り眺めれば、少しは気の重さが晴れるかもしれない。ということで今日はタッチイベントの実装を眺めてみたい。実装といっても静電容量だの電磁誘導だのではなくユーザー空間の話です。そして老人の勉強記録であり目新しい話はありません。間違ってたら教えてください。</p>
+
+<p>参照するコードは何も考えず <a href="http://source.android.com/source/using-repo.html"><code>repo sync</code></a> で降ってくる AOSP master。たぶんだいたい 4.4.x 相当(だよね？)</p>
+
+<h2>View#onTouchEvent()</h2>
+
+<p>あんどろプログラマからみたタッチイベントはふつう <a href="http://developer.android.com/reference/android/view/View.html#onTouchEvent%28android.view.MotionEvent%29"><code>View#onTouchEvent()</code></a> にやってくる <a href="http://developer.android.com/reference/android/view/MotionEvent.html"><code>MotionEvent</code></a> だと理解している。<a href="https://github.com/android/platform_frameworks_base/blob/master/core/java/android/widget/AbsListView.java"><code>ListView</code></a> なんかも <code>onTouchEvent()</code> で色々やっているからこれはきっと正しい。</p>
+
+<p>さっそく <a href="https://github.com/android/platform_frameworks_base"><code>frameworks/base</code></a> の <a href="https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/View.java"><code>View.java</code></a> を見てみると、<code>onTouchEvent()</code> にはそれなりに長いデフォルト実装がある。(150 行くらい。)</p>
+
+<figure class='code'><figcaption><span>View.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/View.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">...</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">boolean</span> <span class="nf">onTouchEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">final</span> <span class="kt">int</span> <span class="n">viewFlags</span> <span class="o">=</span> <span class="n">mViewFlags</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="o">((</span><span class="n">viewFlags</span> <span class="o">&amp;</span> <span class="n">ENABLED_MASK</span><span class="o">)</span> <span class="o">==</span> <span class="n">DISABLED</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="o">...</span>
+</span><span class='line'>            <span class="c1">// A disabled view that is clickable still consumes the touch</span>
+</span><span class='line'>            <span class="c1">// events, it just doesn&#39;t respond to them.</span>
+</span><span class='line'>            <span class="k">return</span> <span class="o">(((</span><span class="n">viewFlags</span> <span class="o">&amp;</span> <span class="n">CLICKABLE</span><span class="o">)</span> <span class="o">==</span> <span class="n">CLICKABLE</span> <span class="o">||</span>
+</span><span class='line'>                    <span class="o">(</span><span class="n">viewFlags</span> <span class="o">&amp;</span> <span class="n">LONG_CLICKABLE</span><span class="o">)</span> <span class="o">==</span> <span class="n">LONG_CLICKABLE</span><span class="o">));</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(((</span><span class="n">viewFlags</span> <span class="o">&amp;</span> <span class="n">CLICKABLE</span><span class="o">)</span> <span class="o">==</span> <span class="n">CLICKABLE</span> <span class="o">||</span>
+</span><span class='line'>                <span class="o">(</span><span class="n">viewFlags</span> <span class="o">&amp;</span> <span class="n">LONG_CLICKABLE</span><span class="o">)</span> <span class="o">==</span> <span class="n">LONG_CLICKABLE</span><span class="o">))</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">switch</span> <span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">getAction</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'><span class="o">....</span>
+</span><span class='line'>                <span class="k">case</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">ACTION_DOWN</span><span class="o">:</span>
+</span><span class='line'>                    <span class="n">mHasPerformedLongPress</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>                    <span class="c1">// Walk up the hierarchy to determine if we&#39;re inside a scrolling container.</span>
+</span><span class='line'>                    <span class="kt">boolean</span> <span class="n">isInScrollingContainer</span> <span class="o">=</span> <span class="n">isInScrollingContainer</span><span class="o">();</span>
+</span><span class='line'>
+</span><span class='line'>                    <span class="c1">// For views inside a scrolling container, delay the pressed feedback for</span>
+</span><span class='line'>                    <span class="c1">// a short period in case this is a scroll.</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">isInScrollingContainer</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">mPrivateFlags</span> <span class="o">|=</span> <span class="n">PFLAG_PREPRESSED</span><span class="o">;</span>
+</span><span class='line'>                        <span class="k">if</span> <span class="o">(</span><span class="n">mPendingCheckForTap</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                            <span class="n">mPendingCheckForTap</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CheckForTap</span><span class="o">();</span>
+</span><span class='line'>                        <span class="o">}</span>
+</span><span class='line'>                        <span class="n">postDelayed</span><span class="o">(</span><span class="n">mPendingCheckForTap</span><span class="o">,</span> <span class="n">ViewConfiguration</span><span class="o">.</span><span class="na">getTapTimeout</span><span class="o">());</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                    <span class="k">break</span><span class="o">;</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>     <span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>たとえば Long press や Tap の判定なんかがさらっと書いてある。判定方法は <code>Runnable</code> を実装してそれをタイマーから呼び、状態の差を見るだけ。
+こういうのをさらっとかけるプラットホームはいいなあ&#8230;とおもうのだった。(C++比。Swift 書いてる人は鼻で笑っといてください。)
+それにしてもたくさんの責務をばりっと同じクラスに書いてしまうのは伝統的な Java ぽくない。 <code>View.java</code> だけで 1.7 万行くらいある&#8230;</p>
+
+<h2>ViewGroup</h2>
+
+<p>さて <code>onTouch()</code> はどこから呼ばれるのか。主なパスは二つある。</p>
+
+<p>一つは View ツリーの親からやってくるパスで、親たる <a href="https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewGroup.java"><code>ViewGroup</code></a> の <code>ViewGroup#dispatchTransformedTouchEvent()</code> から呼ばれる。このメソッドは <code>ViewGroup::dispatchTouchEvent()</code> から使われている。子の View のうちイベントの座標に重なるものにイベントを配信する。よくある親から子への event propagation。</p>
+
+<figure class='code'><figcaption><span>ViewGroup.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewGroup.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">...</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">boolean</span> <span class="nf">dispatchTransformedGenericPointerEvent</span><span class="o">(</span><span class="n">MotionEvent</span> <span class="n">event</span><span class="o">,</span> <span class="n">View</span> <span class="n">child</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">final</span> <span class="kt">float</span> <span class="n">offsetX</span> <span class="o">=</span> <span class="n">mScrollX</span> <span class="o">-</span> <span class="n">child</span><span class="o">.</span><span class="na">mLeft</span><span class="o">;</span>
+</span><span class='line'>        <span class="kd">final</span> <span class="kt">float</span> <span class="n">offsetY</span> <span class="o">=</span> <span class="n">mScrollY</span> <span class="o">-</span> <span class="n">child</span><span class="o">.</span><span class="na">mTop</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">boolean</span> <span class="n">handled</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(!</span><span class="n">child</span><span class="o">.</span><span class="na">hasIdentityMatrix</span><span class="o">())</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">MotionEvent</span> <span class="n">transformedEvent</span> <span class="o">=</span> <span class="n">MotionEvent</span><span class="o">.</span><span class="na">obtain</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">transformedEvent</span><span class="o">.</span><span class="na">offsetLocation</span><span class="o">(</span><span class="n">offsetX</span><span class="o">,</span> <span class="n">offsetY</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">transformedEvent</span><span class="o">.</span><span class="na">transform</span><span class="o">(</span><span class="n">child</span><span class="o">.</span><span class="na">getInverseMatrix</span><span class="o">());</span>
+</span><span class='line'>            <span class="n">handled</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="na">dispatchGenericMotionEvent</span><span class="o">(</span><span class="n">transformedEvent</span><span class="o">);</span> <span class="c1">// これとか</span>
+</span><span class='line'>            <span class="n">transformedEvent</span><span class="o">.</span><span class="na">recycle</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">event</span><span class="o">.</span><span class="na">offsetLocation</span><span class="o">(</span><span class="n">offsetX</span><span class="o">,</span> <span class="n">offsetY</span><span class="o">);</span>
+</span><span class='line'>            <span class="n">handled</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="na">dispatchGenericMotionEvent</span><span class="o">(</span><span class="n">event</span><span class="o">);</span> <span class="c1">// これ</span>
+</span><span class='line'>            <span class="n">event</span><span class="o">.</span><span class="na">offsetLocation</span><span class="o">(-</span><span class="n">offsetX</span><span class="o">,</span> <span class="o">-</span><span class="n">offsetY</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">handled</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>名前が &#8220;Transformed&#8221; なのは子 <code>View</code> のローカル座標系に位置を変換するからだけど、よくみると位置にオフセットを足すだけでなくだけでなく変換行列をかけている。<code>View</code> には回転やらスケールやらの行列をセットできるらしい。たぶんアニメーションのためだろう。イベントの衝突計算にもちゃんと反映されるんだな。Material Design なんかだと色々派手に動くのであんなものが実装できるのかと密かに怪しんでいたけれど、下地は案外ちゃんとしていた。当たり前かもしれませんが・・・。</p>
+
+<h2>ViewRootImpl</h2>
+
+<p>もう一つのパスは、同じクラスの <code>View#dispatchTouchEvent()</code> と <code>View#dispatchPointerEvent()</code> を介し <a href="https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewRootImpl.java"><code>ViewRootImpl</code></a> から呼ばれるもの。</p>
+
+<p><code>ViewRootImpl</code> も 0.7 万行くらいあるそこそこ大きなクラスで、コメントによれば <code>View</code> ツリーとウィンドウシステム (<code>WindowManager</code>) をとりもつのが仕事らしい。名前から察するにこれがツリーのルートなのだろう。ただし <code>ViewGroup</code> が <code>View</code> を継承しているのに対し <code>ViewRootImpl</code> は継承していない。ツリーのルートというよりコンテナという方が実態に近い。そして <code>ViewRootImpl::mView</code> がルートのようだ。この値は Activity が表示されるときにどこかからセットされる。 <code>MotionEvent</code> を最初にうけとる <code>View</code> はこの <code>mView</code>。<code>mView</code> がセットされるまでの道のりは長いので省略。</p>
+
+<p><img src="https://farm4.staticflickr.com/3845/14640491152_e68fbcfa80_b.jpg" alt="View Tree" /></p>
+
+<p>なおクラス名から予期される Impl でない <code>ViewRoot</code> は見当たらない。昔のコードにはあるから、どこかでこの不思議な名前に変わったようだ。</p>
+
+<h2>InputStage</h2>
+
+<p>さて <code>View#dispatchPointerEvent()</code> および <code>View#dispatchGenericMotionEvent()</code> は <code>ViewPostImeInputStage#processPointerEvent()</code> から呼ばれる。 <code>ViewPostImeInputState</code> をはじめとする <code>InputStage</code> のサブクラスはみな <code>ViewRootImpl</code> の内部クラスで、タッチやキーボードなどの入力イベントを処理するための小さなフレームワークを構成している。</p>
+
+<p>この InputStage フレームワークはいわゆる <a href="http://en.wikipedia.org/wiki/Chain-of-responsibility_pattern">Chain of responsibility</a> のパターン。一つのイベントを処理するために一連の stage 実装が参加し、自分が処理できないイベントを別の stage に先送りしたり、ちょっとタイミングや中身を書き換えて委譲したりする。まあ UI まわりで chain of responsibility ってよくあるよね。 Cocoa の responder chain とか。</p>
+
+<figure class='code'><figcaption><span>ViewRootImpl.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewRootImpl.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">...</span>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * Base class for implementing a stage in the chain of responsibility</span>
+</span><span class='line'><span class="cm">     * for processing input events.</span>
+</span><span class='line'><span class="cm">     * &lt;p&gt;</span>
+</span><span class='line'><span class="cm">     * Events are delivered to the stage by the {@link #deliver} method.  The stage</span>
+</span><span class='line'><span class="cm">     * then has the choice of finishing the event or forwarding it to the next stage.</span>
+</span><span class='line'><span class="cm">     * &lt;/p&gt;</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">InputStage</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">private</span> <span class="kd">final</span> <span class="n">InputStage</span> <span class="n">mNext</span><span class="o">;</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>        <span class="cm">/**</span>
+</span><span class='line'><span class="cm">         * Forwards the event to the next stage.</span>
+</span><span class='line'><span class="cm">         */</span>
+</span><span class='line'>        <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">forward</span><span class="o">(</span><span class="n">QueuedInputEvent</span> <span class="n">q</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">onDeliverToNext</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="cm">/**</span>
+</span><span class='line'><span class="cm">         * Called when an event is being delivered to the next stage.</span>
+</span><span class='line'><span class="cm">         */</span>
+</span><span class='line'>        <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">onDeliverToNext</span><span class="o">(</span><span class="n">QueuedInputEvent</span> <span class="n">q</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">mNext</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">mNext</span><span class="o">.</span><span class="na">deliver</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">finishInputEvent</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>InputStage</code> が面倒を見る入力イベントは <code>KeyEvent</code> (キーボード)と <code>MotionEvent</code> (タッチ)の二種類。Stage の実装は 6 種類(<code>ViewPreImeInputStage</code>, <code>ImeInputStage</code>, <code>NativePostImeInputStage</code>, <code>EarlyPostImeInputStage</code>, <code>ViewPostImeInputStage</code>, <code>SyntheticInputStage</code>) 。<code>MotionEvent</code> については委譲の果てに <code>ViewPostImeInputStage</code> が呼び出されて <code>View</code> に届く。</p>
+
+<p>タッチ紀行の主役 <code>MotionEvent</code> だけを追いかけると <code>InputStage</code> のフレームワークはやりすぎに見える。でも <code>KeyEvent</code> のコードパスを調べると事情がわかる。<code>KeyEvent</code> は IME にリダイレクトされる必要がある。そして処理の結果は非同期に、別のプロセスから戻ってくる。そんな非同期性やメッセージングの複雑さを局所化するための仕組みなのだろう。</p>
+
+<p>そのほか NDK 対応のためとみられる Native なんとかという stage もあるけど、<code>NativeAcitivity</code> のコードをひやかした印象だともう機能してないレガシーな印象。</p>
+
+<h2>QueuedInputEvent</h2>
+
+<p>本題に戻る。 <code>InputStage</code> へのイベントはどこからやってくるのだろう。読み進めると <code>ViewRootImpl#doProcessInputEvents()</code> が <code>deliverEvent()</code> 経由で <code>InputStage</code> を呼び出している。</p>
+
+<figure class='code'><figcaption><span>ViewRootImpl.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewRootImpl.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kt">void</span> <span class="nf">doProcessInputEvents</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="c1">// Deliver all pending input events in the queue.</span>
+</span><span class='line'>    <span class="k">while</span> <span class="o">(</span><span class="n">mPendingInputEventHead</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">QueuedInputEvent</span> <span class="n">q</span> <span class="o">=</span> <span class="n">mPendingInputEventHead</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">mPendingInputEventHead</span> <span class="o">=</span> <span class="n">q</span><span class="o">.</span><span class="na">mNext</span><span class="o">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">mPendingInputEventHead</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">mPendingInputEventTail</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="n">q</span><span class="o">.</span><span class="na">mNext</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">deliverInputEvent</span><span class="o">(</span><span class="n">q</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>名前のとおり <code>doProcessInputEvents()</code> は複数のイベントを処理する。そのイベントは <code>ViewRootImpl#mPendingInputEventHead</code> という線形リストから取り出している。型は <code>QueuedInputEvent</code>.
+名前の通り、このリストは intrusive なキューとして機能している。</p>
+
+<p>イベントやメッセージの配信について調べるとき、<em>どんなキューをいつ通過するか</em> はわかりやすい道程になる。その一つ目が現れた。
+このキューにはどこからイベントが詰め込まれるのか・・・というと、<code>ViewRootImpl#enqueueInputEvent()</code> なる大変わかりやすい名前のメソッドがあるのだった。</p>
+
+<p>イベント配信について調べるとき気にする事がもう一つある。
+その配信は<em>同期</em>的に処理される(同じコールスタックの中で即座に配信される)か、それとも<em>非同期</em>(タイマーやイベントループで先送りされる)か。非同期配信はコードの堅牢さを助ける一方、遅延の原因にもなる。<code>MotionEvent</code> みたいに反応時間が大切そうなものを非同期化していいの？</p>
+
+<p>などと思いつつよく見ると、<code>enqueueInputEvent()</code> には <code>processImmediately</code> なんてパラメタがある。</p>
+
+<figure class='code'><figcaption><span>ViewRootImpl.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewRootImpl.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>    <span class="kt">void</span> <span class="nf">enqueueInputEvent</span><span class="o">(</span><span class="n">InputEvent</span> <span class="n">event</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">InputEventReceiver</span> <span class="n">receiver</span><span class="o">,</span> <span class="kt">int</span> <span class="n">flags</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">processImmediately</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// ... put |event| into the queue</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">processImmediately</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">doProcessInputEvents</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">scheduleProcessInputEvents</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>呼び出しが <code>processImmediately</code> なら即座に <code>doProcessInputEvents()</code> が呼ばれ、キューに詰めたばかりのイベントが同期的に掃き出される。そうでなければメインループにメッセージを投げ (<code>scheduleProcessInputEvents()</code>)、非同期に <code>doProcessInputEvents()</code> を呼び出すよう指示する。つまり <code>ViewRootImpl</code> はキューをもっているが、それを同期的に掃き出すオプションを用意している。（そしてだいたいは同期的に処理している。)</p>
+
+<h2>WindowInputEventReceiver#onInputEvent()</h2>
+
+<p><code>enqueueInputEvent()</code> はあちこちから呼ばれている。ただし、その多くはキーボードのイベントや、「合成」イベントを発行するためのもの。</p>
+
+<p><code>SyntheticTrackballHandler</code> や <code>SyntheticTouchNavigationHandler</code> といったクラスが、<code>SyntheticInputStage</code> から「合成された」 InputEvent を送り出す。たとえばトラックボール由来の <code>MotionEvent</code> をスクロールのための矢印キーのイベントに、<code>MotionEvent</code> 全般を十字キーイベントに変換/合成(synthesis)したりする。トラックボールのあんどろデバイスとかあるんかいな・・・。</p>
+
+<p>こうした脇道はさておくと、内部クラスである <code>WindowInputEventReceiver</code> が実質上唯一の <code>MotionEvent</code> 送付元のようだ。<code>processImmediately</code> は <code>true</code>. 同期配信。</p>
+
+<figure class='code'><figcaption><span>ViewRootImpl.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewRootImpl.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">...</span>
+</span><span class='line'>    <span class="c1">// WindowInputEventRecever は ViewRootImpl の内部クラス.</span>
+</span><span class='line'>    <span class="kd">final</span> <span class="kd">class</span> <span class="nc">WindowInputEventReceiver</span> <span class="kd">extends</span> <span class="n">InputEventReceiver</span> <span class="o">{</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="nf">WindowInputEventReceiver</span><span class="o">(</span><span class="n">InputChannel</span> <span class="n">inputChannel</span><span class="o">,</span> <span class="n">Looper</span> <span class="n">looper</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="kd">super</span><span class="o">(</span><span class="n">inputChannel</span><span class="o">,</span> <span class="n">looper</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nd">@Override</span>
+</span><span class='line'>        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">onInputEvent</span><span class="o">(</span><span class="n">InputEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">enqueueInputEvent</span><span class="o">(</span><span class="n">event</span><span class="o">,</span> <span class="k">this</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="o">....</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="n">WindowInputEventReceiver</span> <span class="n">mInputEventReceiver</span><span class="o">;</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>クラス名から判断すると、この <code>WindowInputEventReceiver</code> およびスーパークラスの <a href="https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/InputEventReceiver.java"><code>InputEventReceiver</code></a> は <code>MotionEvent</code> などの入力イベントを処理するのに特化した専用の仕組みなのだろう。イベントを扱う他のコードは <code>ViewRootImpl#mHandler</code> という <a href="http://developer.android.com/reference/android/os/Handler.html"><code>Handler</code></a> オブジェクトを介するのが流儀に見える。わざわざ特別な <code>WindowInputEventReceiver</code> を使うのは不思議な気もする。性能上の事情があるのかもね。</p>
+
+<h2>InputEventReceiver, InputChannel, Looper</h2>
+
+<p><code>ViewRootImpl</code> は <code>InputEventReceiver</code> を介して <code>MotionEvent</code> を受け取っているようだ、ということがわかった。</p>
+
+<p><a href="https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/InputEventReceiver.java"><code>InputEventReceiver</code></a> は <a href="http://en.wikipedia.org/wiki/Template_method_pattern">Template Method</a> パターンでサブクラスの <code>onInputEvent()</code> を呼びだし、<code>InputEvent</code> (<code>MotionEvent</code>をふくむ) の到着を知らせる。でもいつどこからこれを呼び出すのだろう。ぱっと見ただけではよくわからない。 <code>onInputEvent()</code> を呼び出す <code>dispatchInputEvent()</code> は C++ 側から呼び出されるからだ。Java はこのへんで切り上げ、JNI のむこうにある C++ コードに駒を進めよう。</p>
+
+<p><code>InputEventReciever.java</code> に対応する JNI の実装は <a href="https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_view_InputEventReceiver.cpp"><code>android_view_InputEventReceiver.cpp</code></a>。このファイルは <code>NativeInputEventReceiver</code> という (C++) クラスを定義している。Java 側のクラス構造をおおまかにマップした C++ クラスを作るのはあんどろ JNI 実装のイディオムらしく、目についた JNI のコードはだいたい似たようなパターンに従っていた。オブジェクトモデルを Java 側に任せきる伝統的な Java スタイルとは違い、どちらかというとブラウザの C++ と JS の関係っぽい。</p>
+
+<p>参考までに <code>NativeInputEventReceiver</code> の定義はこんなかんじ:</p>
+
+<figure class='code'><figcaption><span>android_view_InputEventReceiver.cpp </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_view_InputEventReceiver.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">NativeInputEventReceiver</span> <span class="o">:</span> <span class="k">public</span> <span class="n">LooperCallback</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">NativeInputEventReceiver</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span>
+</span><span class='line'>            <span class="n">jobject</span> <span class="n">receiverWeak</span><span class="p">,</span> <span class="k">const</span> <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputChannel</span><span class="o">&gt;&amp;</span> <span class="n">inputChannel</span><span class="p">,</span>
+</span><span class='line'>            <span class="k">const</span> <span class="n">sp</span><span class="o">&lt;</span><span class="n">MessageQueue</span><span class="o">&gt;&amp;</span> <span class="n">messageQueue</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">status_t</span> <span class="n">initialize</span><span class="p">();</span>
+</span><span class='line'>    <span class="p">....</span>
+</span><span class='line'>    <span class="n">status_t</span> <span class="n">consumeEvents</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">consumeBatches</span><span class="p">,</span> <span class="n">nsecs_t</span> <span class="n">frameTime</span><span class="p">,</span>
+</span><span class='line'>            <span class="kt">bool</span><span class="o">*</span> <span class="n">outConsumedBatch</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">Finish</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">uint32_t</span> <span class="n">seq</span><span class="p">;</span>
+</span><span class='line'>        <span class="kt">bool</span> <span class="n">handled</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">jobject</span> <span class="n">mReceiverWeakGlobal</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">mFdEvents</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="k">virtual</span> <span class="kt">int</span> <span class="n">handleEvent</span><span class="p">(</span><span class="kt">int</span> <span class="n">receiveFd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">events</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">data</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>jobject</code> 型の <code>mReceiverWeakGlobal</code> が Java のオブジェクトをさしている。</p>
+
+<p>Java 側はこんなの:</p>
+
+<figure class='code'><figcaption><span>InputEventReciever.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/InputEventReceiver.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="kd">public</span> <span class="kd">abstract</span> <span class="kd">class</span> <span class="nc">InputEventReceiver</span> <span class="o">{</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">native</span> <span class="kt">long</span> <span class="nf">nativeInit</span><span class="o">(</span><span class="n">WeakReference</span><span class="o">&lt;</span><span class="n">InputEventReceiver</span><span class="o">&gt;</span> <span class="n">receiver</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">InputChannel</span> <span class="n">inputChannel</span><span class="o">,</span> <span class="n">MessageQueue</span> <span class="n">messageQueue</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">nativeDispose</span><span class="o">(</span><span class="kt">long</span> <span class="n">receiverPtr</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">native</span> <span class="kt">void</span> <span class="nf">nativeFinishInputEvent</span><span class="o">(</span><span class="kt">long</span> <span class="n">receiverPtr</span><span class="o">,</span> <span class="kt">int</span> <span class="n">seq</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">handled</span><span class="o">);</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kd">static</span> <span class="kd">native</span> <span class="kt">boolean</span> <span class="nf">nativeConsumeBatchedInputEvents</span><span class="o">(</span><span class="kt">long</span> <span class="n">receiverPtr</span><span class="o">,</span>
+</span><span class='line'>            <span class="kt">long</span> <span class="n">frameTimeNanos</span><span class="o">);</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="nf">InputEventReceiver</span><span class="o">(</span><span class="n">InputChannel</span> <span class="n">inputChannel</span><span class="o">,</span> <span class="n">Looper</span> <span class="n">looper</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>        <span class="n">mInputChannel</span> <span class="o">=</span> <span class="n">inputChannel</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">mMessageQueue</span> <span class="o">=</span> <span class="n">looper</span><span class="o">.</span><span class="na">getQueue</span><span class="o">();</span>
+</span><span class='line'>        <span class="n">mReceiverPtr</span> <span class="o">=</span> <span class="n">nativeInit</span><span class="o">(</span><span class="k">new</span> <span class="n">WeakReference</span><span class="o">&lt;</span><span class="n">InputEventReceiver</span><span class="o">&gt;(</span><span class="k">this</span><span class="o">),</span>
+</span><span class='line'>                <span class="n">inputChannel</span><span class="o">,</span> <span class="n">mMessageQueue</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'> <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">protected</span> <span class="kt">void</span> <span class="nf">finalize</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Throwable</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>            <span class="n">nativeDispose</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+</span><span class='line'>        <span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+</span><span class='line'>            <span class="kd">super</span><span class="o">.</span><span class="na">finalize</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>    <span class="o">...</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">long</span> <span class="n">mReceiverPtr</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// We keep references to the input channel and message queue objects here so that</span>
+</span><span class='line'>    <span class="c1">// they are not GC&#39;d while the native peer of the receiver is using them.</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">InputChannel</span> <span class="n">mInputChannel</span><span class="o">;</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="n">MessageQueue</span> <span class="n">mMessageQueue</span><span class="o">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Called from native code.</span>
+</span><span class='line'>    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;unused&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">dispatchInputEvent</span><span class="o">(</span><span class="kt">int</span> <span class="n">seq</span><span class="o">,</span> <span class="n">InputEvent</span> <span class="n">event</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">mSeqMap</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">event</span><span class="o">.</span><span class="na">getSequenceNumber</span><span class="o">(),</span> <span class="n">seq</span><span class="o">);</span>
+</span><span class='line'>        <span class="n">onInputEvent</span><span class="o">(</span><span class="n">event</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// Called from native code.</span>
+</span><span class='line'>    <span class="nd">@SuppressWarnings</span><span class="o">(</span><span class="s">&quot;unused&quot;</span><span class="o">)</span>
+</span><span class='line'>    <span class="kd">private</span> <span class="kt">void</span> <span class="nf">dispatchBatchedInputEventPending</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">onBatchedInputEventPending</span><span class="o">();</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>native</code> とマークされたメソッドが複数。また <code>long</code> な <code>mReceiverPtr</code> に C++ 側オブジェクトへのポインタを持っている。Finalizer があるのも JNI っぽい。こうやって C++ と Java のクラスをミラーする流儀なんだね。</p>
+
+<p>さて一瞬 Java に戻ると、<code>InputEventReceiver</code> には共に働くクラスが二つある: <a href="https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/InputChannel.java"><code>InputChannel</code></a> と <a href="http://developer.android.com/reference/android/os/Looper.html"><code>Looper</code></a> だ。 <code>InputEventReceiver</code> はこの二つのオブジェクトをコンストラクタの引数に受け取る。</p>
+
+<h3>InputChannel</h3>
+
+<p><code>InputChannel</code> も <code>Looper</code> も C++ にミラーしたオブジェクトのある C++ backed なクラス。</p>
+
+<p><code>InputChannel</code> の JNI コード <a href="https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_view_InputChannel.cpp"><code>android_view_InputChannel.cpp</code></a> は <code>NativeInputChannel</code> クラスを定義している。でもこのクラスはほとんどなにもせず、別のクラス <code>android::InputChannel</code> をラップしているだけ。<code>android::InputChannel</code> が Java 側 <code>android.os.InputChannel</code> の実体だと言える。<code>InputChannel</code>(Java) -> <code>NativeInputChannel</code>(C++) -> <code>android::InputChannel</code>(C++) と間接化が二段階ある。この冗長さはきっと、 Java クラスの実装を C++ で書くのではなく C++ のクラスを Java 側に公開するという形で物事がデザインされ、中間の JNI にしわ寄せが来た結果だろうな、などと想像した。まあどうでもいい。</p>
+
+<p>C++ 版 <code>InputChannel</code> は <a href="https://android.googlesource.com/platform/frameworks/native.git/+/master/include/input/InputTransport.h">InputTransport.h</a> に定義されている。</p>
+
+<figure class='code'><figcaption><span>InputTransport.h </span><a href='https://android.googlesource.com/platform/frameworks/native.git/+/master/include/input/InputTransport.h'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm"> * An input channel consists of a local unix domain socket used to send and receive</span>
+</span><span class='line'><span class="cm"> * input messages across processes.  Each channel has a descriptive name for debugging purposes.</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * Each endpoint has its own InputChannel object that specifies its file descriptor.</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * The input channel is closed when all references to it are released.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">InputChannel</span> <span class="o">:</span> <span class="k">public</span> <span class="n">RefBase</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="k">static</span> <span class="n">status_t</span> <span class="n">openInputChannelPair</span><span class="p">(</span><span class="k">const</span> <span class="n">String8</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>            <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputChannel</span><span class="o">&gt;&amp;</span> <span class="n">outServerChannel</span><span class="p">,</span> <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputChannel</span><span class="o">&gt;&amp;</span> <span class="n">outClientChannel</span><span class="p">);</span>
+</span><span class='line'>    <span class="kr">inline</span> <span class="n">String8</span> <span class="n">getName</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">mName</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>    <span class="kr">inline</span> <span class="kt">int</span> <span class="n">getFd</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">mFd</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">status_t</span> <span class="n">sendMessage</span><span class="p">(</span><span class="k">const</span> <span class="n">InputMessage</span><span class="o">*</span> <span class="n">msg</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">status_t</span> <span class="n">receiveMessage</span><span class="p">(</span><span class="n">InputMessage</span><span class="o">*</span> <span class="n">msg</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">String8</span> <span class="n">mName</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">mFd</span><span class="p">;</span> <span class="c1">// ファイルデスクリプタ</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>コメントや定義からわかるように、<code>InputChannel</code> は UNIX ドメインソケットをカプセル化し、そのソケット上で <code>InputMessage</code> 構造体を送受信するもののようだ。<code>InputEventReceiver</code> はこの <code>InputChannel</code> を通じ、どこかから届くイベントを受け取る。</p>
+
+<p>ブラウザに似ていると書いたけれど、実際にはだいぶ違う。ブラウザでは(今のところ) DOM なんかの実装を JS で書く事はない。ぜんぶ C++ にコードがあって JS はそれをラップするだけ。オブジェクトグラフも C++ 側にある。あんどろのこのへんのコードは割と Java 側にもコードがあり、オブジェクトグラフにしても Java 側と C++ 側の両方がそれぞれ自分に必要なものをもっている。</p>
+
+<p><img src="https://farm4.staticflickr.com/3842/14617932566_4411d153b9_b.jpg" alt="Java and JNI" /></p>
+
+<p>一見グラフの同期が大変そうだけれど、いま見ているのは実装の詳細である非公開なクラスな上にグラフはおおむね immutable 。だから多少冗長でも大丈夫、ということらしい。いずれにせよフレキシブルというかアドホックというか、面白いね。</p>
+
+<p>などと周辺事情をおさらいしたところで本題の <code>InputEventReceiver</code> に戻ろう。</p>
+
+<p>C++ 側のコードに目をやると、<code>NativeInputEventReceiver</code> は <code>LooperCallback</code> なるクラスを継承している。</p>
+
+<figure class='code'><figcaption><span>android_view_InputEventReceiver.cpp </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_view_InputEventReceiver.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">NativeInputEventReceiver</span> <span class="o">:</span> <span class="k">public</span> <span class="n">LooperCallback</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>    <span class="k">virtual</span> <span class="kt">int</span> <span class="n">handleEvent</span><span class="p">(</span><span class="kt">int</span> <span class="n">receiveFd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">events</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">data</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>LooperCallback</code> は <a href="https://github.com/android/platform_system_core/blob/master/include/utils/Looper.h"><code>Looper.h</code></a> に定義されている。名前の通り <code>Looper</code> から通知を受け取るためのインターフェイス。引数にはファイルデスクリプタらしい整数値が渡されている。</p>
+
+<p>このことから察しがつくように、<code>NativeInputEventReceiver</code> は <code>Looper</code> に自分自身を登録する。コードをみてみよう。</p>
+
+<figure class='code'><figcaption><span>android_view_InputEventReceiver.cpp </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_view_InputEventReceiver.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">void</span> <span class="n">NativeInputEventReceiver</span><span class="o">::</span><span class="n">setFdEvents</span><span class="p">(</span><span class="kt">int</span> <span class="n">events</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">mFdEvents</span> <span class="o">!=</span> <span class="n">events</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">mFdEvents</span> <span class="o">=</span> <span class="n">events</span><span class="p">;</span>
+</span><span class='line'>       <span class="c1">// mInputConsumer.getChannel() は InputChannel を返す</span>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">mInputConsumer</span><span class="p">.</span><span class="n">getChannel</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">getFd</span><span class="p">();</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// ここで登録。</span>
+</span><span class='line'>            <span class="n">mMessageQueue</span><span class="o">-&gt;</span><span class="n">getLooper</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">addFd</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">events</span><span class="p">,</span> <span class="k">this</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">mMessageQueue</span><span class="o">-&gt;</span><span class="n">getLooper</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">removeFd</span><span class="p">(</span><span class="n">fd</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>InputChannel</code> のソケットデスクリプタを自分自身に紐づけ <code>Looper::addFd()</code> を呼び出している。</p>
+
+<h2>Looper</h2>
+
+<p>この <code>Looper</code> とは何だろう。</p>
+
+<p>Java の世界、アプリケーションの側からみると、<code>android.os.Looper</code> はスレッドのイベントループを抽象化したオブジェクトだ。といっても公開された機能はすくなく、<a href="http://developer.android.com/reference/android/os/Looper.html">API</a> はループの開始終了くらいしかない。</p>
+
+<p>C++ の世界から見ると、<code>android::Looper</code> は要するに <a href="http://linux.die.net/man/2/select"><code>select()</code></a> (または <a href="http://linux.die.net/man/4/epoll"><code>epoll</code></a>) だ。ファイルデスクリプタを登録しておき、読み書きの準備ができた際にコールバックを受け取る。</p>
+
+<p>GUI のイベントループは OS の多重化 IO と同期機構の上に組み立てられる。だから <code>epoll</code> とイベントループが同じ名前で抽象化されるのは自然といえば自然だ。そして GUI プログラミングが <code>epoll</code> で非同期サーバーを書くようなものなら、ブロックするコードを書いて怒られるのも無理はない。今更ながら襟首をただす。</p>
+
+<p>あんどろをはじめとする多くの GUI ツールキットは、足下に隠された多重化 IO をアプリケーションから隠している。Java や NDK から直接 <code>android::Looper</code> にアクセスすることはできない。</p>
+
+<p>一方 Mac OS/iOS の <a href="https://developer.apple.com/library/ios/documentation/cocoa/Conceptual/Multithreading/RunLoopManagement/RunLoopManagement.html">Run Loop</a> は多重化 IO としてのイベントループをアプリケーションプログラマに公開している。アプリケーションは多重化したいチャネル(ポート)をメインループに追加できる。これはきっと足下の Mach という OS がメッセージパッシングを重視している現れだろう。意外なところに出自が見えて面白い。</p>
+
+<h3>届いたイベントの処理</h3>
+
+<p>また脇道にそれた。ここまでのあらすじを振り返ると&#8230;</p>
+
+<ul>
+<li><code>ViewRootImpl</code> は <code>InputEvent</code> (<code>MotionEvent</code> を含む) を受け取るために <code>InputEventReceiver</code> を使う。このクラスは <code>InputChannel</code> が持つソケットデスクリプタを <code>Looper</code> に登録し、そのソケットに届いたバイト列をイベントに変換して利用者 (<code>ViewRootImpl</code>) に知らせる。</li>
+<li><code>Looper</code> はイベントループの多重化 IO に参加する手段として <code>LooperCallback</code> を提供している。<code>LooperCallback</code> を使うとメインスレッドのイベントループに便乗してソケットのデータを待つ事が出来る。自分でスレッドを持たなくてよい。</li>
+</ul>
+
+
+<p><img src="https://farm4.staticflickr.com/3864/14459379568_d5341f9acb_b.jpg" alt="InputEventReceiver" /></p>
+
+<p><code>NativeInputEventReceiver</code> がソケットに届いたデータをどうやって処理するか、少し覗いてみよう。エントリポイントは <code>handleEvent()</code>.</p>
+
+<figure class='code'><figcaption><span>android_view_InputEventReceiver.cpp </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_view_InputEventReceiver.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="kt">int</span> <span class="n">NativeInputEventReceiver</span><span class="o">::</span><span class="n">handleEvent</span><span class="p">(</span><span class="kt">int</span> <span class="n">receiveFd</span><span class="p">,</span> <span class="kt">int</span> <span class="n">events</span><span class="p">,</span> <span class="kt">void</span><span class="o">*</span> <span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="p">....</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">events</span> <span class="o">&amp;</span> <span class="n">ALOOPER_EVENT_INPUT</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span> <span class="o">=</span> <span class="n">AndroidRuntime</span><span class="o">::</span><span class="n">getJNIEnv</span><span class="p">();</span>
+</span><span class='line'>        <span class="n">status_t</span> <span class="n">status</span> <span class="o">=</span> <span class="n">consumeEvents</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="kc">false</span> <span class="cm">/*consumeBatches*/</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">mMessageQueue</span><span class="o">-&gt;</span><span class="n">raiseAndClearException</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="s">&quot;handleReceiveCallback&quot;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">status</span> <span class="o">==</span> <span class="n">OK</span> <span class="o">||</span> <span class="n">status</span> <span class="o">==</span> <span class="n">NO_MEMORY</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">events</span> <span class="o">&amp;</span> <span class="n">ALOOPER_EVENT_OUTPUT</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">for</span> <span class="p">(</span><span class="n">size_t</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">mFinishQueue</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">const</span> <span class="n">Finish</span><span class="o">&amp;</span> <span class="n">finish</span> <span class="o">=</span> <span class="n">mFinishQueue</span><span class="p">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">i</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">status_t</span> <span class="n">status</span> <span class="o">=</span> <span class="n">mInputConsumer</span><span class="p">.</span><span class="n">sendFinishedSignal</span><span class="p">(</span><span class="n">finish</span><span class="p">.</span><span class="n">seq</span><span class="p">,</span> <span class="n">finish</span><span class="p">.</span><span class="n">handled</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この <code>handleEvent()</code> は fd の準備ができると <code>Looper</code> から呼び出される。
+その準備の結果、fd が読み出し可能 (<code>ALOOPER_EVENT_INPUT</code>) なら届いたデータを処理し(<code>consumeEvents()</code>)、
+書き出し可能 (<code>ALOOPER_EVENT_OUTPUT</code>) なら ACK を送り返す。特に何も面白くない&#8230;</p>
+
+<p>まあ ACK(<code>Finish</code> オブジェクト) の送付があるのは面白いといえば面白い。イベント配信なんて一方向通信で良さそうなものだけれど、なにか事情があるんだろうね。</p>
+
+<p>一歩進んでデータを読み出す <code>conumeEvents()</code> を眺めてみると&#8230;</p>
+
+<figure class='code'><figcaption><span>android_view_InputEventReceiver.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">status_t</span> <span class="n">NativeInputEventReceiver</span><span class="o">::</span><span class="n">consumeEvents</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span>
+</span><span class='line'>        <span class="kt">bool</span> <span class="n">consumeBatches</span><span class="p">,</span> <span class="n">nsecs_t</span> <span class="n">frameTime</span><span class="p">,</span> <span class="kt">bool</span><span class="o">*</span> <span class="n">outConsumedBatch</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">....</span>
+</span><span class='line'>    <span class="n">ScopedLocalRef</span><span class="o">&lt;</span><span class="n">jobject</span><span class="o">&gt;</span> <span class="n">receiverObj</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'>    <span class="kt">bool</span> <span class="n">skipCallbacks</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(;;)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">uint32_t</span> <span class="n">seq</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">InputEvent</span><span class="o">*</span> <span class="n">inputEvent</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">status_t</span> <span class="n">status</span> <span class="o">=</span> <span class="n">mInputConsumer</span><span class="p">.</span><span class="n">consume</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mInputEventFactory</span><span class="p">,</span>
+</span><span class='line'>                <span class="n">consumeBatches</span><span class="p">,</span> <span class="n">frameTime</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">seq</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">inputEvent</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">status</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>            <span class="n">env</span><span class="o">-&gt;</span><span class="n">CallVoidMethod</span><span class="p">(</span><span class="n">receiverObj</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span>
+</span><span class='line'>                            <span class="n">gInputEventReceiverClassInfo</span><span class="p">.</span><span class="n">dispatchBatchedInputEventPending</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">env</span><span class="o">-&gt;</span><span class="n">ExceptionCheck</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">ALOGE</span><span class="p">(</span><span class="s">&quot;Exception dispatching batched input events.&quot;</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">mBatchedInputEventPending</span> <span class="o">=</span> <span class="kc">false</span><span class="p">;</span> <span class="c1">// try again later</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">status</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">skipCallbacks</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>            <span class="n">jobject</span> <span class="n">inputEventObj</span><span class="p">;</span>
+</span><span class='line'>            <span class="k">switch</span> <span class="p">(</span><span class="n">inputEvent</span><span class="o">-&gt;</span><span class="n">getType</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>            <span class="k">case</span> <span class="nl">AINPUT_EVENT_TYPE_MOTION:</span> <span class="p">{</span>
+</span><span class='line'>                <span class="p">...</span>
+</span><span class='line'>                <span class="n">MotionEvent</span><span class="o">*</span> <span class="n">motionEvent</span> <span class="o">=</span> <span class="k">static_cast</span><span class="o">&lt;</span><span class="n">MotionEvent</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">inputEvent</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">((</span><span class="n">motionEvent</span><span class="o">-&gt;</span><span class="n">getAction</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">AMOTION_EVENT_ACTION_MOVE</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="n">outConsumedBatch</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="o">*</span><span class="n">outConsumedBatch</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="n">inputEventObj</span> <span class="o">=</span> <span class="n">android_view_MotionEvent_obtainAsCopy</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">motionEvent</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">inputEventObj</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="p">...</span>
+</span><span class='line'>                <span class="n">env</span><span class="o">-&gt;</span><span class="n">CallVoidMethod</span><span class="p">(</span><span class="n">receiverObj</span><span class="p">.</span><span class="n">get</span><span class="p">(),</span>
+</span><span class='line'>                        <span class="n">gInputEventReceiverClassInfo</span><span class="p">.</span><span class="n">dispatchInputEvent</span><span class="p">,</span> <span class="n">seq</span><span class="p">,</span> <span class="n">inputEventObj</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">...</span>
+</span><span class='line'>            <span class="p">}</span> <span class="p">...</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>C++ のイベントを <code>mInputConsumer.consume()</code> でソケットから読み出し、それを Java のオブジェクトに変換して Java 側のレシーバ (<code>InputEventReceiver</code>) に通知していた。
+Command-Query separation などと厳しく躾けられた身には厳しいコードですな&#8230;</p>
+
+<h3>InputConsumer と Event Batching</h3>
+
+<p>新たに登場した <code>mInputConsumer</code> は <code>InputConsumer</code> クラス。<code>InputChannel</code> を補助している。なぜこんな間接化が必要なのか。<code>InputConsumer::consume()</code> を覗いてみよう:</p>
+
+<figure class='code'><figcaption><span>InputTransport.cpp </span><a href='https://android.googlesource.com/platform/frameworks/native.git/+/master/libs/input/InputTransport.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">status_t</span> <span class="n">InputConsumer</span><span class="o">::</span><span class="n">consume</span><span class="p">(</span><span class="n">InputEventFactoryInterface</span><span class="o">*</span> <span class="n">factory</span><span class="p">,</span>
+</span><span class='line'>        <span class="kt">bool</span> <span class="n">consumeBatches</span><span class="p">,</span> <span class="n">nsecs_t</span> <span class="n">frameTime</span><span class="p">,</span> <span class="n">uint32_t</span><span class="o">*</span> <span class="n">outSeq</span><span class="p">,</span> <span class="n">InputEvent</span><span class="o">**</span> <span class="n">outEvent</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="o">*</span><span class="n">outSeq</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="o">*</span><span class="n">outEvent</span> <span class="o">=</span> <span class="nb">NULL</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">// Fetch the next input message.</span>
+</span><span class='line'>    <span class="c1">// Loop until an event can be returned or no additional events are received.</span>
+</span><span class='line'>    <span class="k">while</span> <span class="p">(</span><span class="o">!*</span><span class="n">outEvent</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">mMsgDeferred</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="c1">// Receive a fresh message.</span>
+</span><span class='line'>            <span class="n">status_t</span> <span class="n">result</span> <span class="o">=</span> <span class="n">mChannel</span><span class="o">-&gt;</span><span class="n">receiveMessage</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mMsg</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="c1">// Consume the next batched event unless batches are being held for later.</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">consumeBatches</span> <span class="o">||</span> <span class="n">result</span> <span class="o">!=</span> <span class="n">WOULD_BLOCK</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">result</span> <span class="o">=</span> <span class="n">consumeBatch</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span> <span class="n">frameTime</span><span class="p">,</span> <span class="n">outSeq</span><span class="p">,</span> <span class="n">outEvent</span><span class="p">);</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="n">outEvent</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                        <span class="p">...</span>
+</span><span class='line'>                        <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                    <span class="p">}</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="k">return</span> <span class="n">result</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">switch</span> <span class="p">(</span><span class="n">mMsg</span><span class="p">.</span><span class="n">header</span><span class="p">.</span><span class="n">type</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>        <span class="k">case</span> <span class="nl">AINPUT_EVENT_TYPE_MOTION:</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">ssize_t</span> <span class="n">batchIndex</span> <span class="o">=</span> <span class="n">findBatch</span><span class="p">(</span><span class="n">mMsg</span><span class="p">.</span><span class="n">body</span><span class="p">.</span><span class="n">motion</span><span class="p">.</span><span class="n">deviceId</span><span class="p">,</span> <span class="n">mMsg</span><span class="p">.</span><span class="n">body</span><span class="p">.</span><span class="n">motion</span><span class="p">.</span><span class="n">source</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">batchIndex</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">Batch</span><span class="o">&amp;</span> <span class="n">batch</span> <span class="o">=</span> <span class="n">mBatches</span><span class="p">.</span><span class="n">editItemAt</span><span class="p">(</span><span class="n">batchIndex</span><span class="p">);</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="n">canAddSample</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mMsg</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">batch</span><span class="p">.</span><span class="n">samples</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">mMsg</span><span class="p">);</span>
+</span><span class='line'>                    <span class="p">...</span>
+</span><span class='line'>                    <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="c1">// We cannot append to the batch in progress, so we need to consume</span>
+</span><span class='line'>                    <span class="c1">// the previous batch right now and defer the new message until later.</span>
+</span><span class='line'>                    <span class="n">mMsgDeferred</span> <span class="o">=</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class='line'>                    <span class="n">status_t</span> <span class="n">result</span> <span class="o">=</span> <span class="n">consumeSamples</span><span class="p">(</span><span class="n">factory</span><span class="p">,</span>
+</span><span class='line'>                            <span class="n">batch</span><span class="p">,</span> <span class="n">batch</span><span class="p">.</span><span class="n">samples</span><span class="p">.</span><span class="n">size</span><span class="p">(),</span> <span class="n">outSeq</span><span class="p">,</span> <span class="n">outEvent</span><span class="p">);</span>
+</span><span class='line'>                    <span class="n">mBatches</span><span class="p">.</span><span class="n">removeAt</span><span class="p">(</span><span class="n">batchIndex</span><span class="p">);</span>
+</span><span class='line'>                    <span class="p">...</span>
+</span><span class='line'>                    <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="c1">// Start a new batch if needed.</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">mMsg</span><span class="p">.</span><span class="n">body</span><span class="p">.</span><span class="n">motion</span><span class="p">.</span><span class="n">action</span> <span class="o">==</span> <span class="n">AMOTION_EVENT_ACTION_MOVE</span>
+</span><span class='line'>                    <span class="o">||</span> <span class="n">mMsg</span><span class="p">.</span><span class="n">body</span><span class="p">.</span><span class="n">motion</span><span class="p">.</span><span class="n">action</span> <span class="o">==</span> <span class="n">AMOTION_EVENT_ACTION_HOVER_MOVE</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">mBatches</span><span class="p">.</span><span class="n">push</span><span class="p">();</span>
+</span><span class='line'>                <span class="n">Batch</span><span class="o">&amp;</span> <span class="n">batch</span> <span class="o">=</span> <span class="n">mBatches</span><span class="p">.</span><span class="n">editTop</span><span class="p">();</span>
+</span><span class='line'>                <span class="n">batch</span><span class="p">.</span><span class="n">samples</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">mMsg</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">...</span>
+</span><span class='line'>                <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="n">MotionEvent</span><span class="o">*</span> <span class="n">motionEvent</span> <span class="o">=</span> <span class="n">factory</span><span class="o">-&gt;</span><span class="n">createMotionEvent</span><span class="p">();</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="o">!</span> <span class="n">motionEvent</span><span class="p">)</span> <span class="k">return</span> <span class="n">NO_MEMORY</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">updateTouchState</span><span class="p">(</span><span class="o">&amp;</span><span class="n">mMsg</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">initializeMotionEvent</span><span class="p">(</span><span class="n">motionEvent</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">mMsg</span><span class="p">);</span>
+</span><span class='line'>            <span class="o">*</span><span class="n">outSeq</span> <span class="o">=</span> <span class="n">mMsg</span><span class="p">.</span><span class="n">body</span><span class="p">.</span><span class="n">motion</span><span class="p">.</span><span class="n">seq</span><span class="p">;</span>
+</span><span class='line'>            <span class="o">*</span><span class="n">outEvent</span> <span class="o">=</span> <span class="n">motionEvent</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>            <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">UNKNOWN_ERROR</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">OK</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>InputChannel::receiveMessage()</code> で <code>InputMessage</code> 型のオブジェクトを読み出す。そして <code>InputEventFactoryInterface</code> の助けを借り <code>InputMessage</code> を <code>InputEvent</code> に変換する。</p>
+
+<p>型の変換以外にも見所はある。届いたメッセージを <em>batch</em> している。</p>
+
+<p>一回のイベントループで届いた複数の <code>InputMessage</code> を単一の <code>InputEvent</code> にまとめる操作を、ここでは batch と呼んでいる。Batch されるのは特定のメッセージ、具体的には <code>AMOTION_EVENT_ACTION_MOVE</code> と <code>AMOTION_EVENT_ACTION_HOVER_MOVE</code> だけ。要するにまとめて届いた一連のタッチ軌道を一つの <code>MotionEvent</code> にまとめるのが batch 化だ。</p>
+
+<p>Batch してできた軌跡は Java の世界にある <a href="http://developer.android.com/reference/android/view/MotionEvent.html"><code>MotionEvent</code></a> から取り出せる。そういえばお絵描きアプリを作っている友人がこの話をしていたなあ。イベントの情報は捨てずオーバーヘッドを減らす batch はタッチならでは。面白い。デスクトップとマウス相手なら間引いちゃえばいいからね大概・・・。</p>
+
+<p>なお <code>MotionEvent</code> も C++ backed なクラスだった。<a href="https://android.googlesource.com/platform/frameworks/native.git/+/master/include/input/Input.h"><code>Input.h</code></a> に定義がある。別に JNI なんて使わずコピーで実装しても良さそうな気がするけど、それはゆとり世代なおっさんの考えなのだろう。<code>MotionEvent</code> 周辺コードではメモリ節約への気配りが見られる。まず先に登場した <code>InputEventFactoryInterface</code> からしてサブクラスの名前が <code>PreallocatedInputEventFactory</code> と <code>PooledInputEventFactory</code>. アロケーションを細工するための factory だった。batch のコードにも工夫がある。たとえばまとめるタッチ点の数が多すぎてメモリ確保に失敗するとタッチ点を &#8220;再サンプリング&#8221; して点数を減らす。芸が細かい。</p>
+
+<h2>InputChannel::receiveMessage()</h2>
+
+<p><code>receiveMessage()</code> はソケットからデータを読むと書いた。念のため確認しとこう。</p>
+
+<figure class='code'><figcaption><span>InputTransport.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">status_t</span> <span class="n">InputChannel</span><span class="o">::</span><span class="n">receiveMessage</span><span class="p">(</span><span class="n">InputMessage</span><span class="o">*</span> <span class="n">msg</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">ssize_t</span> <span class="n">nRead</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">do</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">nRead</span> <span class="o">=</span> <span class="o">::</span><span class="n">recv</span><span class="p">(</span><span class="n">mFd</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">InputMessage</span><span class="p">),</span> <span class="n">MSG_DONTWAIT</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">nRead</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span> <span class="o">&amp;&amp;</span> <span class="n">errno</span> <span class="o">==</span> <span class="n">EINTR</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span> <span class="c1">// エラーチェック</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">OK</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>構造体を sizeof() して読むだけ。よしよし。素朴でいいよ。</p>
+
+<h2>InputChannel の対</h2>
+
+<p>ここまでは <code>InputChannel</code> のソケットに届いたデータが <code>InputMessage</code>, <code>InputEvent</code> と姿を変えつつ <code>ViewRootImpl</code> に届くところを見届けた。</p>
+
+<p>ではそもそも <code>InputChannel</code> のソケットに届くデータはどこからやってくるのだろう。<code>ViewRootImpl</code> に戻って <code>InputChannel</code> ができる様子を調べよう。</p>
+
+<figure class='code'><figcaption><span>ViewRootImpl.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewRootImpl.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">...</span>
+</span><span class='line'>    <span class="cm">/**</span>
+</span><span class='line'><span class="cm">     * We have one child</span>
+</span><span class='line'><span class="cm">     */</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setView</span><span class="o">(</span><span class="n">View</span> <span class="n">view</span><span class="o">,</span> <span class="n">WindowManager</span><span class="o">.</span><span class="na">LayoutParams</span> <span class="n">attrs</span><span class="o">,</span> <span class="n">View</span> <span class="n">panelParentView</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="o">...</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">((</span><span class="n">mWindowAttributes</span><span class="o">.</span><span class="na">inputFeatures</span>
+</span><span class='line'>                        <span class="o">&amp;</span> <span class="n">WindowManager</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">INPUT_FEATURE_NO_INPUT_CHANNEL</span><span class="o">)</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="n">mInputChannel</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InputChannel</span><span class="o">();</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>                <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="o">...</span>
+</span><span class='line'>                    <span class="n">res</span> <span class="o">=</span> <span class="n">mWindowSession</span><span class="o">.</span><span class="na">addToDisplay</span><span class="o">(</span><span class="n">mWindow</span><span class="o">,</span> <span class="n">mSeq</span><span class="o">,</span> <span class="n">mWindowAttributes</span><span class="o">,</span>
+</span><span class='line'>                            <span class="n">getHostVisibility</span><span class="o">(),</span> <span class="n">mDisplay</span><span class="o">.</span><span class="na">getDisplayId</span><span class="o">(),</span>
+</span><span class='line'>                            <span class="n">mAttachInfo</span><span class="o">.</span><span class="na">mContentInsets</span><span class="o">,</span> <span class="n">mInputChannel</span><span class="o">);</span>
+</span><span class='line'>                <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">RemoteException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="o">...</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="o">...</span>
+</span><span class='line'>                <span class="k">if</span> <span class="o">(</span><span class="n">mInputChannel</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                    <span class="k">if</span> <span class="o">(</span><span class="n">mInputQueueCallback</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                        <span class="n">mInputQueue</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InputQueue</span><span class="o">();</span>
+</span><span class='line'>                        <span class="n">mInputQueueCallback</span><span class="o">.</span><span class="na">onInputQueueCreated</span><span class="o">(</span><span class="n">mInputQueue</span><span class="o">);</span>
+</span><span class='line'>                    <span class="o">}</span>
+</span><span class='line'>                    <span class="n">mInputEventReceiver</span> <span class="o">=</span> <span class="k">new</span> <span class="n">WindowInputEventReceiver</span><span class="o">(</span><span class="n">mInputChannel</span><span class="o">,</span>
+</span><span class='line'>                            <span class="n">Looper</span><span class="o">.</span><span class="na">myLooper</span><span class="o">());</span>
+</span><span class='line'>                <span class="o">}</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="o">...</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>setView()</code> という巨大な関数に一連の初期化があった。まず空の <code>InputChannel</code> をインスタンス化し、それを <code>mWindowSession.addToDisplay()</code> に渡したあと <code>WindowInputEventReceiver</code> のコンストラクタに届けている。
+<code>InputChannel</code> のコンストラクタは何もしない空関数だから、怪しいのは <code>addToDisplay()</code> だ。 <code>mWindowSession</code> はどんなオブジェクトなのだろう。</p>
+
+<h2>WindowSession と Binder</h2>
+
+<p><code>mWindowSession</code> は <code>IWindowSession</code> インターフェイス型のフィールド。
+あんどろの世界で <code>I</code> から始まる型は IPC 機構の Binder が <a href="http://developer.android.com/guide/components/aidl.html">AIDL</a> ファイルから生成したプロキシだ。
+この <code>IWindowSession</code> にも対応する <a href="https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/IWindowSession.aidl"><code>IWindowSession.aidl</code></a> がある。
+つまり <code>mWindowSession</code> は IPC のプロキシで、実体はたぶん別のプロセスにある。いちおう変数の出所を確認すると&#8230;</p>
+
+<figure class='code'><figcaption><span>ViewRootImpl.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/java/android/view/ViewRootImpl.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'>  <span class="o">...</span>
+</span><span class='line'>  <span class="kd">public</span> <span class="nf">ViewRootImpl</span><span class="o">(</span><span class="n">Context</span> <span class="n">context</span><span class="o">,</span> <span class="n">Display</span> <span class="n">display</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="n">mContext</span> <span class="o">=</span> <span class="n">context</span><span class="o">;</span>
+</span><span class='line'>        <span class="n">mWindowSession</span> <span class="o">=</span> <span class="n">WindowManagerGlobal</span><span class="o">.</span><span class="na">getWindowSession</span><span class="o">();</span>
+</span><span class='line'>        <span class="o">...</span>
+</span><span class='line'>  <span class="o">}</span>
+</span><span class='line'>  <span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>コンストラクタの冒頭でグローバルの方から来た様子がわかる。そして&#8230;</p>
+
+<figure class='code'><figcaption><span>WindowManagerGlobal.java</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="kd">public</span> <span class="kd">static</span> <span class="n">IWindowSession</span> <span class="nf">getWindowSession</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kd">synchronized</span> <span class="o">(</span><span class="n">WindowManagerGlobal</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">(</span><span class="n">sWindowSession</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>            <span class="k">try</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">InputMethodManager</span> <span class="n">imm</span> <span class="o">=</span> <span class="n">InputMethodManager</span><span class="o">.</span><span class="na">getInstance</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">IWindowManager</span> <span class="n">windowManager</span> <span class="o">=</span> <span class="n">getWindowManagerService</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">sWindowSession</span> <span class="o">=</span> <span class="n">windowManager</span><span class="o">.</span><span class="na">openSession</span><span class="o">(</span>
+</span><span class='line'>                        <span class="n">imm</span><span class="o">.</span><span class="na">getClient</span><span class="o">(),</span> <span class="n">imm</span><span class="o">.</span><span class="na">getInputContext</span><span class="o">());</span>
+</span><span class='line'>                <span class="kt">float</span> <span class="n">animatorScale</span> <span class="o">=</span> <span class="n">windowManager</span><span class="o">.</span><span class="na">getAnimationScale</span><span class="o">(</span><span class="mi">2</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">ValueAnimator</span><span class="o">.</span><span class="na">setDurationScale</span><span class="o">(</span><span class="n">animatorScale</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">RemoteException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">Log</span><span class="o">.</span><span class="na">e</span><span class="o">(</span><span class="n">TAG</span><span class="o">,</span> <span class="s">&quot;Failed to open window session&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'>        <span class="o">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">sWindowSession</span><span class="o">;</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>IWindowSession</code> のインスタンスは <code>IWindowManager</code> という別の binder proxy から <code>openSession()</code> で取り出していた。
+名前から察するに、<code>IWindowSession</code> はアプリケーションと WindowManager の接続単位として振る舞い、
+その WindowManager とデータをやり取りするのだろう。<code>InputChannel</code> もやりとりされるデータの一部というわけだ。</p>
+
+<p>&#8230;という仮説を確認すべく WindowSession の実装を探してみよう。</p>
+
+<figure class='code'><figcaption><span>Session.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/services/java/com/android/server/wm/Session.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="cm">/**</span>
+</span><span class='line'><span class="cm"> * This class represents an active client session.  There is generally one</span>
+</span><span class='line'><span class="cm"> * Session object per process that is interacting with the window manager.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="kd">final</span> <span class="kd">class</span> <span class="nc">Session</span> <span class="kd">extends</span> <span class="n">IWindowSession</span><span class="o">.</span><span class="na">Stub</span>
+</span><span class='line'>        <span class="kd">implements</span> <span class="n">IBinder</span><span class="o">.</span><span class="na">DeathRecipient</span> <span class="o">{</span>
+</span><span class='line'><span class="o">....</span>
+</span><span class='line'> <span class="nd">@Override</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">addToDisplay</span><span class="o">(</span><span class="n">IWindow</span> <span class="n">window</span><span class="o">,</span> <span class="kt">int</span> <span class="n">seq</span><span class="o">,</span> <span class="n">WindowManager</span><span class="o">.</span><span class="na">LayoutParams</span> <span class="n">attrs</span><span class="o">,</span>
+</span><span class='line'>            <span class="kt">int</span> <span class="n">viewVisibility</span><span class="o">,</span> <span class="kt">int</span> <span class="n">displayId</span><span class="o">,</span> <span class="n">Rect</span> <span class="n">outContentInsets</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">InputChannel</span> <span class="n">outInputChannel</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">mService</span><span class="o">.</span><span class="na">addWindow</span><span class="o">(</span><span class="k">this</span><span class="o">,</span> <span class="n">window</span><span class="o">,</span> <span class="n">seq</span><span class="o">,</span> <span class="n">attrs</span><span class="o">,</span> <span class="n">viewVisibility</span><span class="o">,</span> <span class="n">displayId</span><span class="o">,</span>
+</span><span class='line'>                <span class="n">outContentInsets</span><span class="o">,</span> <span class="n">outInputChannel</span><span class="o">);</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'><span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>InputChannel</code> を <code>mService</code> に引き渡している。それっぽい。このコードはどこか別のプロセスで動いている(はず)なのを思い出してほしい。</p>
+
+<h2>Parcel とファイルデスクリプタ</h2>
+
+<p><code>WindowSession</code> が binder のサービスなのはいいとして、一つ気になる事がある。
+<code>InputChannel</code> は C++ のオブジェクトをラップしており、
+そのオブジェクトはソケットのデスクリプタを持っていた。</p>
+
+<figure class='code'><figcaption><span>InputTransport.h</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm"> * An input channel consists of a local unix domain socket used to send and receive</span>
+</span><span class='line'><span class="cm"> * input messages across processes.  Each channel has a descriptive name for debugging purposes.</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * Each endpoint has its own InputChannel object that specifies its file descriptor.</span>
+</span><span class='line'><span class="cm"> *</span>
+</span><span class='line'><span class="cm"> * The input channel is closed when all references to it are released.</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">InputChannel</span> <span class="o">:</span> <span class="k">public</span> <span class="n">RefBase</span> <span class="p">{</span>
+</span><span class='line'>   <span class="p">...</span>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">String8</span> <span class="n">mName</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">mFd</span><span class="p">;</span> <span class="c1">// これ</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この fd, プロセスをまたいで送れるものなんだろうか。
+Binder ではオブジェクトを <a href="http://developer.android.com/reference/android/os/Parcel.html">Parcel</a>という形式でバイト列に書き出す。
+<code>InputChannel</code> の直列化コードを覗いてみよう。</p>
+
+<figure class='code'><figcaption><span>android_view_InputChannel.cpp </span><a href='https://github.com/android/platform_frameworks_base/blob/master/core/jni/android_view_InputChannel.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="n">android_view_InputChannel_nativeWriteToParcel</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span> <span class="n">jobject</span> <span class="n">obj</span><span class="p">,</span>
+</span><span class='line'>        <span class="n">jobject</span> <span class="n">parcelObj</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">Parcel</span><span class="o">*</span> <span class="n">parcel</span> <span class="o">=</span> <span class="n">parcelForJavaObject</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">parcelObj</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">parcel</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">NativeInputChannel</span><span class="o">*</span> <span class="n">nativeInputChannel</span> <span class="o">=</span>
+</span><span class='line'>                <span class="n">android_view_InputChannel_getNativeInputChannel</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">obj</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">nativeInputChannel</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputChannel</span><span class="o">&gt;</span> <span class="n">inputChannel</span> <span class="o">=</span> <span class="n">nativeInputChannel</span><span class="o">-&gt;</span><span class="n">getInputChannel</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>            <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">writeInt32</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">writeString8</span><span class="p">(</span><span class="n">inputChannel</span><span class="o">-&gt;</span><span class="n">getName</span><span class="p">());</span>
+</span><span class='line'>            <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">writeDupFileDescriptor</span><span class="p">(</span><span class="n">inputChannel</span><span class="o">-&gt;</span><span class="n">getFd</span><span class="p">());</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">parcel</span><span class="o">-&gt;</span><span class="n">writeInt32</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>parcel-&gt;writeDupFileDescriptor()</code> なんて API を使っている。どうも Binder はふつうにファイルデスクリプタを送れるらしい。</p>
+
+<p>私の記憶によれば、Linux で別プロセスに fd を送るには複雑怪奇なシステムコールが必要なはず。
+Parcel のバイト列に埋もれた fd をどうやってその手のシステムコールにつないでいるのだろうか。
+答えを求め <a href="https://android.googlesource.com/platform/frameworks/native.git/+/master/libs/binder/Parcel.cpp"><code>Parcel.cpp</code></a> を覗く。</p>
+
+<figure class='code'><figcaption><span>Parcel.cpp </span><a href='https://android.googlesource.com/platform/frameworks/native.git/+/master/libs/binder/Parcel.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">status_t</span> <span class="n">Parcel</span><span class="o">::</span><span class="n">writeFileDescriptor</span><span class="p">(</span><span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">takeOwnership</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="n">flat_binder_object</span> <span class="n">obj</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">obj</span><span class="p">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">BINDER_TYPE_FD</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">obj</span><span class="p">.</span><span class="n">flags</span> <span class="o">=</span> <span class="mh">0x7f</span> <span class="o">|</span> <span class="n">FLAT_BINDER_FLAG_ACCEPTS_FDS</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">obj</span><span class="p">.</span><span class="n">binder</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="cm">/* Don&#39;t pass uninitialized stack data to a remote process */</span>
+</span><span class='line'>    <span class="n">obj</span><span class="p">.</span><span class="n">handle</span> <span class="o">=</span> <span class="n">fd</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">obj</span><span class="p">.</span><span class="n">cookie</span> <span class="o">=</span> <span class="n">takeOwnership</span> <span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">writeObject</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">true</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="n">status_t</span> <span class="n">Parcel</span><span class="o">::</span><span class="n">writeObject</span><span class="p">(</span><span class="k">const</span> <span class="n">flat_binder_object</span><span class="o">&amp;</span> <span class="n">val</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">nullMetaData</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">bool</span> <span class="n">enoughData</span> <span class="o">=</span> <span class="p">(</span><span class="n">mDataPos</span><span class="o">+</span><span class="k">sizeof</span><span class="p">(</span><span class="n">val</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">mDataCapacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">const</span> <span class="kt">bool</span> <span class="n">enoughObjects</span> <span class="o">=</span> <span class="n">mObjectsSize</span> <span class="o">&lt;</span> <span class="n">mObjectsCapacity</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">enoughData</span> <span class="o">&amp;&amp;</span> <span class="n">enoughObjects</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="nl">restart_write:</span>
+</span><span class='line'>        <span class="o">*</span><span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="n">flat_binder_object</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">mData</span><span class="o">+</span><span class="n">mDataPos</span><span class="p">)</span> <span class="o">=</span> <span class="n">val</span><span class="p">;</span>
+</span><span class='line'>        <span class="c1">// Need to write meta-data?</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">nullMetaData</span> <span class="o">||</span> <span class="n">val</span><span class="p">.</span><span class="n">binder</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">mObjects</span><span class="p">[</span><span class="n">mObjectsSize</span><span class="p">]</span> <span class="o">=</span> <span class="n">mDataPos</span><span class="p">;</span>
+</span><span class='line'>            <span class="n">acquire_object</span><span class="p">(</span><span class="n">ProcessState</span><span class="o">::</span><span class="n">self</span><span class="p">(),</span> <span class="n">val</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</span><span class='line'>            <span class="n">mObjectsSize</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="p">....</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">finishWrite</span><span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">flat_binder_object</span><span class="p">));</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>んー。構造体 <code>flat_binder_object</code> として適当なタグをつけた fd をつくり、それをバイト列に書き込んでいるだけ&#8230;のように見える&#8230;</p>
+
+<p>その後 <a href="https://android.googlesource.com/platform/frameworks/native.git/+/master/libs/binder/">libs/binder/</a> のコードをしばらく眺めたものの、
+結局そのバイト列は <code>/dev/binder</code> というファイルに <code>ioctl()</code> で渡されるだけだとわかった。</p>
+
+<p>細工はこの <code>/dev/binder</code> にある。</p>
+
+<p>Binder にはカーネルドライバがある。そしてそのドライバがカーネル空間の力でファイルデスクリプタを別プロセスに引き渡している。だから変なシステムコールに頼る必要もない。
+(自分で変なシステムコールを実装しているとも言える。)
+よく見ると先に登場した <code>flat_binder_object</code> もカーネルの中、<a href="https://github.com/torvalds/linux/blob/master/drivers/staging/android/uapi/binder.h">binder.h</a> に定義がある。</p>
+
+<p>そういえば Binder はクロスプロセスなオブジェクトの寿命管理なんかもカーネルにやらせていてクール、みたいな話をどこかで聞いたことがある。
+ファイルデスクリプタ受け渡しもそういうクールな何かの一部なのですね。</p>
+
+<p>カーネルのドライバ <a href="https://github.com/torvalds/linux/blob/master/drivers/staging/android/binder.c">binder.c</a> をみると&#8230;</p>
+
+<figure class='code'><figcaption><span>binder.c </span><a href='https://github.com/torvalds/linux/blob/master/drivers/staging/android/binder.c'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="n">binder_transaction</span><span class="p">(</span><span class="k">struct</span> <span class="n">binder_proc</span> <span class="o">*</span><span class="n">proc</span><span class="p">,</span>
+</span><span class='line'>                               <span class="k">struct</span> <span class="n">binder_thread</span> <span class="o">*</span><span class="kr">thread</span><span class="p">,</span>
+</span><span class='line'>                               <span class="k">struct</span> <span class="n">binder_transaction_data</span> <span class="o">*</span><span class="n">tr</span><span class="p">,</span> <span class="kt">int</span> <span class="n">reply</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>        <span class="n">off_end</span> <span class="o">=</span> <span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="p">)</span><span class="n">offp</span> <span class="o">+</span> <span class="n">tr</span><span class="o">-&gt;</span><span class="n">offsets_size</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">for</span> <span class="p">(;</span> <span class="n">offp</span> <span class="o">&lt;</span> <span class="n">off_end</span><span class="p">;</span> <span class="n">offp</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">struct</span> <span class="n">flat_binder_object</span> <span class="o">*</span><span class="n">fp</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>            <span class="n">fp</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">flat_binder_object</span> <span class="o">*</span><span class="p">)(</span><span class="n">t</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">+</span> <span class="o">*</span><span class="n">offp</span><span class="p">);</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>            <span class="k">switch</span> <span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">type</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>            <span class="k">case</span> <span class="nl">BINDER_TYPE_FD:</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">fp</span> <span class="o">=</span> <span class="p">(</span><span class="k">struct</span> <span class="n">flat_binder_object</span> <span class="o">*</span><span class="p">)(</span><span class="n">t</span><span class="o">-&gt;</span><span class="n">buffer</span><span class="o">-&gt;</span><span class="n">data</span> <span class="o">+</span> <span class="o">*</span><span class="n">offp</span><span class="p">);</span>
+</span><span class='line'>                <span class="n">file</span> <span class="o">=</span> <span class="n">fget</span><span class="p">(</span><span class="n">fp</span><span class="o">-&gt;</span><span class="n">handle</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">...</span>
+</span><span class='line'>                <span class="n">target_fd</span> <span class="o">=</span> <span class="n">task_get_unused_fd_flags</span><span class="p">(</span><span class="n">target_proc</span><span class="p">,</span> <span class="n">O_CLOEXEC</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">...</span>
+</span><span class='line'>                <span class="n">task_fd_install</span><span class="p">(</span><span class="n">target_proc</span><span class="p">,</span> <span class="n">target_fd</span><span class="p">,</span> <span class="n">file</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">....</span>
+</span><span class='line'>             <span class="p">}</span> <span class="k">break</span><span class="p">;</span>
+</span><span class='line'>             <span class="p">...</span>
+</span><span class='line'>             <span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm"> * copied from fd_install</span>
+</span><span class='line'><span class="cm"> */</span>
+</span><span class='line'><span class="k">static</span> <span class="kt">void</span> <span class="n">task_fd_install</span><span class="p">(</span>
+</span><span class='line'>       <span class="k">struct</span> <span class="n">binder_proc</span> <span class="o">*</span><span class="n">proc</span><span class="p">,</span> <span class="kt">unsigned</span> <span class="kt">int</span> <span class="n">fd</span><span class="p">,</span> <span class="k">struct</span> <span class="n">file</span> <span class="o">*</span><span class="n">file</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">files</span><span class="p">)</span>
+</span><span class='line'>     <span class="n">__fd_install</span><span class="p">(</span><span class="n">proc</span><span class="o">-&gt;</span><span class="n">files</span><span class="p">,</span> <span class="n">fd</span><span class="p">,</span> <span class="n">file</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>ふつうにプロセスのデスクリプタテーブルをいじっているのだった。ドライバ書くの便利だな・・・。</p>
+
+<p>なお素の Linux ではファイルデスクリプタを送受信するのに <a href="http://man7.org/linux/man-pages/man2/recvmmsg.2.html">recvmsg()</a>/<a href="http://man7.org/linux/man-pages/man2/sendmmsg.2.html">sendmsg()</a>
+という API を使うのだけれど、その事実は man を読んでも全然わからない。<a href="http://www.amazon.co.jp/The-Linux-Programming-Interface-Handbook-ebook/dp/B004OEJMZM%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3DB004OEJMZM"> The Linux Programming Interface </a> (<a href="http://www.amazon.co.jp/Linux%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%95%E3%82%A7%E3%83%BC%E3%82%B9-Michael-Kerrisk/dp/487311585X%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D487311585X"> 日本語訳 </a>) というシステムコールマニア向け読み物には説明がある。が、知らないよそんなの・・・。Mac OS/Mach は <a href="https://developer.apple.com/library/mac/documentation/Darwin/Conceptual/KernelProgramming/Mach/Mach.html">Port</a> という IPC の仕組みにけっこうな労力を割いており、その Port はプロセス間で難なく受け渡す事ができる。<a href="http://www.amazon.co.jp/Mac-OS-Internals-Systems-Approach-ebook/dp/B004Y4UTLI%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3DB004Y4UTLI"> Mac OS X Internals </a> とかにも説明があったはず。IPC には OS の個性が見える、かも。</p>
+
+<p><a href="http://www.amazon.co.jp/Linux%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E3%82%A4%E3%83%B3%E3%82%BF%E3%83%95%E3%82%A7%E3%83%BC%E3%82%B9-Michael-Kerrisk/dp/487311585X%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D487311585X"><img class="asin" src="http://ecx.images-amazon.com/images/I/51hm94xagHL.jpg" title=" 日本語訳 " /></a></p>
+
+<p><a href="http://www.amazon.co.jp/Mac-OS-Internals-Systems-Approach-ebook/dp/B004Y4UTLI%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3DB004Y4UTLI"><img class="asin" src="http://ecx.images-amazon.com/images/I/51qUBVj6v2L.jpg" title=" Mac OS X Internals " /></a></p>
+
+<h2>前半の道のり</h2>
+
+<p>話がそれた。</p>
+
+<p>ここまでの道のりを振り返ると:</p>
+
+<ul>
+<li><code>View</code> に届く <code>MotionEvent</code> は親の <code>ViewGroup</code> か <code>ViewRootImpl</code> から届く。</li>
+<li><code>ViewRootImpl</code> は <code>InputStage</code> フレームワークで配信前のイベントに細工をする。ただし <code>MotionEvent</code> に大きな影響はない。</li>
+<li><code>ViewRootImpl</code> は <code>InputEventReceiver</code> を介し <code>InputChannel</code> のソケットから <code>MotionEvent</code> を読み出す。
+
+<ul>
+<li>ソケットには <code>InputMessage</code> 構造体が書き込まれている。</li>
+<li><code>Looper</code> を使いメインスレッドのイベントループに便乗してソケットを監視。</li>
+<li><code>MotionEvent</code> には複数の <code>InputMessage</code> を batch する。</li>
+</ul>
+</li>
+<li><code>InputChannel</code> は Binder オブジェクトの <code>IWindowSession</code> から取り出す。ソケットの反対側は別プロセス。</li>
+</ul>
+
+
+<p><img src="https://farm4.staticflickr.com/3909/14664868043_618fe5ec38_b_d.jpg" alt="Application process" /></p>
+
+<p>イベントやメッセージの配信を調べるときはキューの存在が一里塚になると先に書いた。
+ここまでだと、まず <code>ViewRootImpl</code> が <code>QueuedInputEvent</code> というキューを持っていた。
+ただし <code>MotionEvent</code> がこのキューに長くとどまる事はなく、だいたい同期的に配信される。</p>
+
+<p>もう一つのキューは <code>InputChannel</code> のソケット。共有メモリでも使わない限りプロセス間には何らかの通信経路が必要だから、
+ここにキューがあるのは自然だ。つまりプロセスの中に限ると、主要なパスでは <code>MotionEvent</code> を同期的に配信している。結構がんばってるとおもう。</p>
+
+<h2>WindowManagerService</h2>
+
+<p>というわけで View のあるプロセスを離れ、 <code>InputChannel</code> の反対側にあるプロセスに話を進めよう。
+Window Manager が住むそのプロセスで、誰が <code>InputChannel</code> にデータを送り込むのだろう。</p>
+
+<p><code>WindowSession</code> の実装である <code>Session</code> クラスは,
+<code>InputChannel</code> を初期化する <code>addToDisplay()</code> の処理を
+<code>WindowManagerService#addWindow()</code> に委譲している。
+その <code>addWindow()</code> はというと:</p>
+
+<figure class='code'><figcaption><span>WindowManagerService.java </span><a href='https://github.com/android/platform_frameworks_base/blob/master/services/java/com/android/server/wm/WindowManagerService.java'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='java'><span class='line'><span class="o">...</span>
+</span><span class='line'>    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">addWindow</span><span class="o">(</span><span class="n">Session</span> <span class="n">session</span><span class="o">,</span> <span class="n">IWindow</span> <span class="n">client</span><span class="o">,</span> <span class="kt">int</span> <span class="n">seq</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">WindowManager</span><span class="o">.</span><span class="na">LayoutParams</span> <span class="n">attrs</span><span class="o">,</span> <span class="kt">int</span> <span class="n">viewVisibility</span><span class="o">,</span> <span class="kt">int</span> <span class="n">displayId</span><span class="o">,</span>
+</span><span class='line'>            <span class="n">Rect</span> <span class="n">outContentInsets</span><span class="o">,</span> <span class="n">InputChannel</span> <span class="n">outInputChannel</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>            <span class="k">if</span> <span class="o">(</span><span class="n">outInputChannel</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="o">(</span><span class="n">attrs</span><span class="o">.</span><span class="na">inputFeatures</span>
+</span><span class='line'>                    <span class="o">&amp;</span> <span class="n">WindowManager</span><span class="o">.</span><span class="na">LayoutParams</span><span class="o">.</span><span class="na">INPUT_FEATURE_NO_INPUT_CHANNEL</span><span class="o">)</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+</span><span class='line'>                <span class="n">String</span> <span class="n">name</span> <span class="o">=</span> <span class="n">win</span><span class="o">.</span><span class="na">makeInputChannelName</span><span class="o">();</span>
+</span><span class='line'>                <span class="n">InputChannel</span><span class="o">[]</span> <span class="n">inputChannels</span> <span class="o">=</span> <span class="n">InputChannel</span><span class="o">.</span><span class="na">openInputChannelPair</span><span class="o">(</span><span class="n">name</span><span class="o">);</span>
+</span><span class='line'>                <span class="n">win</span><span class="o">.</span><span class="na">setInputChannel</span><span class="o">(</span><span class="n">inputChannels</span><span class="o">[</span><span class="mi">0</span><span class="o">]);</span>
+</span><span class='line'>                <span class="n">inputChannels</span><span class="o">[</span><span class="mi">1</span><span class="o">].</span><span class="na">transferTo</span><span class="o">(</span><span class="n">outInputChannel</span><span class="o">);</span>
+</span><span class='line'>
+</span><span class='line'>                <span class="n">mInputManager</span><span class="o">.</span><span class="na">registerInputChannel</span><span class="o">(</span><span class="n">win</span><span class="o">.</span><span class="na">mInputChannel</span><span class="o">,</span> <span class="n">win</span><span class="o">.</span><span class="na">mInputWindowHandle</span><span class="o">);</span>
+</span><span class='line'>            <span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span><span class='line'>    <span class="o">}</span>
+</span><span class='line'><span class="o">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>InputChannel#openInputChannelPair()</code> で通信の両端となる <code>InputChannel</code> の対を作り、一端を <code>mInputManager</code> に、もう一旦を呼び出し元に返している。</p>
+
+<p>いちおう確認しておくと <code>openInputChannelPair()</code> は <code>InputChannel</code> を <code>socketpair()</code> の糖衣にすぎない。特段すごい何かではない。</p>
+
+<figure class='code'><figcaption><span>InputTransport.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">status_t</span> <span class="n">InputChannel</span><span class="o">::</span><span class="n">openInputChannelPair</span><span class="p">(</span><span class="k">const</span> <span class="n">String8</span><span class="o">&amp;</span> <span class="n">name</span><span class="p">,</span>
+</span><span class='line'>        <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputChannel</span><span class="o">&gt;&amp;</span> <span class="n">outServerChannel</span><span class="p">,</span> <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputChannel</span><span class="o">&gt;&amp;</span> <span class="n">outClientChannel</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">sockets</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="n">socketpair</span><span class="p">(</span><span class="n">AF_UNIX</span><span class="p">,</span> <span class="n">SOCK_SEQPACKET</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">sockets</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">serverChannelName</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot; (server)&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">outServerChannel</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InputChannel</span><span class="p">(</span><span class="n">serverChannelName</span><span class="p">,</span> <span class="n">sockets</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">clientChannelName</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot; (client)&quot;</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">outClientChannel</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InputChannel</span><span class="p">(</span><span class="n">clientChannelName</span><span class="p">,</span> <span class="n">sockets</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">OK</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>万一 <code>socketpair()</code> などを勉強したい人がいたら <a href="http://www.amazon.co.jp/UNIX%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E3%80%88Vol-1%E3%80%89%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AFAPI-%E3%82%BD%E3%82%B1%E3%83%83%E3%83%88%E3%81%A8XTI-W-%E3%83%AA%E3%83%81%E3%83%A3%E3%83%BC%E3%83%89-%E3%82%B9%E3%83%86%E3%82%A3%E3%83%BC%E3%83%B4%E3%83%B3%E3%82%B9/dp/4894712059%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D4894712059"> Stevens の本 </a> でも読んでおけばいいんじゃないでしょうか。</p>
+
+<p><a href="http://www.amazon.co.jp/UNIX%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AF%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%9F%E3%83%B3%E3%82%B0%E3%80%88Vol-1%E3%80%89%E3%83%8D%E3%83%83%E3%83%88%E3%83%AF%E3%83%BC%E3%82%AFAPI-%E3%82%BD%E3%82%B1%E3%83%83%E3%83%88%E3%81%A8XTI-W-%E3%83%AA%E3%83%81%E3%83%A3%E3%83%BC%E3%83%89-%E3%82%B9%E3%83%86%E3%82%A3%E3%83%BC%E3%83%B4%E3%83%B3%E3%82%B9/dp/4894712059%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D4894712059"><img class="asin" src="http://ecx.images-amazon.com/images/I/213B9PVJD1L.jpg" title=" Stevens の本 " /></a></p>
+
+<p>さて新たに作られた <code>InputChannel</code> の一端を担う <code>mInputManager</code>。クラスは <code>InputManagerService</code> だった。いかにも <code>InputEvent</code> がらみの気配がする名前。
+これも C++ backed なクラスで、 <code>registerInputChannel()</code> の実装も
+<a href="https://github.com/android/platform_frameworks_base/blob/master/services/jni/com_android_server_input_InputManagerService.cpp">C++ 側</a> にある。</p>
+
+<figure class='code'><figcaption><span>com_android_server_input_InputManagerService.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="n">status_t</span> <span class="n">NativeInputManager</span><span class="o">::</span><span class="n">registerInputChannel</span><span class="p">(</span><span class="n">JNIEnv</span><span class="o">*</span> <span class="n">env</span><span class="p">,</span>
+</span><span class='line'>        <span class="k">const</span> <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputChannel</span><span class="o">&gt;&amp;</span> <span class="n">inputChannel</span><span class="p">,</span>
+</span><span class='line'>        <span class="k">const</span> <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputWindowHandle</span><span class="o">&gt;&amp;</span> <span class="n">inputWindowHandle</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">monitor</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">mInputManager</span><span class="o">-&gt;</span><span class="n">getDispatcher</span><span class="p">()</span><span class="o">-&gt;</span><span class="n">registerInputChannel</span><span class="p">(</span>
+</span><span class='line'>            <span class="n">inputChannel</span><span class="p">,</span> <span class="n">inputWindowHandle</span><span class="p">,</span> <span class="n">monitor</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>backing class たる &#8216;android::InputManager<code>が持つ [</code>InputDispatcher`](<a href="https://github.com/android/platform_frameworks_base/blob/master/services/input/InputDispatcher.cpp">https://github.com/android/platform_frameworks_base/blob/master/services/input/InputDispatcher.cpp</a>) に丸投げ。
+でもこの名前、いかにもイベント配信してそうなクラスじゃないですか&#8230;</p>
+
+<h2>InputDispatcher</h2>
+
+<figure class='code'><figcaption><span>InputDispatcher.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="n">status_t</span> <span class="n">InputDispatcher</span><span class="o">::</span><span class="n">registerInputChannel</span><span class="p">(</span><span class="k">const</span> <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputChannel</span><span class="o">&gt;&amp;</span> <span class="n">inputChannel</span><span class="p">,</span>
+</span><span class='line'>        <span class="k">const</span> <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputWindowHandle</span><span class="o">&gt;&amp;</span> <span class="n">inputWindowHandle</span><span class="p">,</span> <span class="kt">bool</span> <span class="n">monitor</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">{</span> <span class="c1">// acquire lock</span>
+</span><span class='line'>        <span class="n">AutoMutex</span> <span class="n">_l</span><span class="p">(</span><span class="n">mLock</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>        <span class="n">sp</span><span class="o">&lt;</span><span class="n">Connection</span><span class="o">&gt;</span> <span class="n">connection</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Connection</span><span class="p">(</span><span class="n">inputChannel</span><span class="p">,</span> <span class="n">inputWindowHandle</span><span class="p">,</span> <span class="n">monitor</span><span class="p">);</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kt">int</span> <span class="n">fd</span> <span class="o">=</span> <span class="n">inputChannel</span><span class="o">-&gt;</span><span class="n">getFd</span><span class="p">();</span>
+</span><span class='line'>        <span class="n">mConnectionsByFd</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="n">connection</span><span class="p">);</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>        <span class="n">mLooper</span><span class="o">-&gt;</span><span class="n">addFd</span><span class="p">(</span><span class="n">fd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">ALOOPER_EVENT_INPUT</span><span class="p">,</span> <span class="n">handleReceiveCallback</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span> <span class="c1">// release lock</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="c1">// Wake the looper because some connections have changed.</span>
+</span><span class='line'>    <span class="n">mLooper</span><span class="o">-&gt;</span><span class="n">wake</span><span class="p">();</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">OK</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この <code>InputDispatcher</code> は <code>InputChannel</code> を <code>Connection</code> オブジェクトでラップした上で <code>mConnectionsByFd</code> に保存し、かつそのファイルデスクリプタを自身の持つ <code>Looper</code> に登録していた。
+やはり <code>InputDispatcher</code> &#8230; または仲間の <code>Connection</code> がソケットの一端であるのは間違いなさそうだ。</p>
+
+<p>InputDispatcher の定義をみるとイベントループ <code>Looper</code> を持っている。
+そしてそれらしいキューもある。</p>
+
+<figure class='code'><figcaption><span>InputDispatcher.h</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">InputDispatcher</span> <span class="o">:</span> <span class="k">public</span> <span class="n">InputDispatcherInterface</span> <span class="p">{</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'>    <span class="n">sp</span><span class="o">&lt;</span><span class="n">Looper</span><span class="o">&gt;</span> <span class="n">mLooper</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">EventEntry</span><span class="o">*</span> <span class="n">mPendingEvent</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Queue</span><span class="o">&lt;</span><span class="n">EventEntry</span><span class="o">&gt;</span> <span class="n">mInboundQueue</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Queue</span><span class="o">&lt;</span><span class="n">EventEntry</span><span class="o">&gt;</span> <span class="n">mRecentQueue</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">Queue</span><span class="o">&lt;</span><span class="n">CommandEntry</span><span class="o">&gt;</span> <span class="n">mCommandQueue</span><span class="p">;</span>
+</span><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>この <code>Connection</code> は <code>InputDispatcher</code> 内の nested class. <code>InputChannel</code> に加え、キューも持っている。</p>
+
+<figure class='code'><figcaption><span>InputDispatcher.h</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="k">class</span> <span class="nc">Connection</span> <span class="o">:</span> <span class="k">public</span> <span class="n">RefBase</span> <span class="p">{</span>
+</span><span class='line'><span class="k">protected</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">virtual</span> <span class="o">~</span><span class="n">Connection</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputChannel</span><span class="o">&gt;</span> <span class="n">inputChannel</span><span class="p">;</span> <span class="c1">// never null</span>
+</span><span class='line'>    <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputWindowHandle</span><span class="o">&gt;</span> <span class="n">inputWindowHandle</span><span class="p">;</span> <span class="c1">// may be null</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">InputPublisher</span> <span class="n">inputPublisher</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="c1">// Queue of events that need to be published to the connection.</span>
+</span><span class='line'>    <span class="n">Queue</span><span class="o">&lt;</span><span class="n">DispatchEntry</span><span class="o">&gt;</span> <span class="n">outboundQueue</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="c1">// Queue of events that have been published to the connection but that have not</span>
+</span><span class='line'>    <span class="c1">// yet received a &quot;finished&quot; response from the application.</span>
+</span><span class='line'>    <span class="n">Queue</span><span class="o">&lt;</span><span class="n">DispatchEntry</span><span class="o">&gt;</span> <span class="n">waitQueue</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>そして更によくみると <code>InputDispatcherThread</code> なんてクラスまである。</p>
+
+<figure class='code'><figcaption><span>InputDispatcher.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="cm">/* Enqueues and dispatches input events, endlessly. */</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">InputDispatcherThread</span> <span class="o">:</span> <span class="k">public</span> <span class="n">Thread</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">explicit</span> <span class="n">InputDispatcherThread</span><span class="p">(</span><span class="k">const</span> <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputDispatcherInterface</span><span class="o">&gt;&amp;</span> <span class="n">dispatcher</span><span class="p">);</span>
+</span><span class='line'>    <span class="o">~</span><span class="n">InputDispatcherThread</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">private</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">virtual</span> <span class="kt">bool</span> <span class="n">threadLoop</span><span class="p">();</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">sp</span><span class="o">&lt;</span><span class="n">InputDispatcherInterface</span><span class="o">&gt;</span> <span class="n">mDispatcher</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// InputManager.cpp</span>
+</span><span class='line'><span class="kt">void</span> <span class="n">InputManager</span><span class="o">::</span><span class="n">initialize</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">mReaderThread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InputReaderThread</span><span class="p">(</span><span class="n">mReader</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">mDispatcherThread</span> <span class="o">=</span> <span class="k">new</span> <span class="n">InputDispatcherThread</span><span class="p">(</span><span class="n">mDispatcher</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>InputDispatcher::Connection::outboundQueue</code>, <code>InputDispatcher::inboundQueue</code>, <code>InputDispatcher::mLooper</code> そして <code>InputDispatcherThread</code>。
+<code>InputDispatcher</code> は自身のスレッドとイベントループをもち、キューにため込んだデータをいくつかの <code>InputChannel</code> に書き出すようなクラスだ&#8230;と想像できる。
+疲れてきたので詳しくは調べないけれど、読んでみるとだいたいそんなかんじだった。</p>
+
+<h2>InputReader</h2>
+
+<p>では <code>InputDispatcher</code> のキューにデータを詰めるのは誰か。
+というとすぐ隣に <a href="https://github.com/android/platform_frameworks_base/blob/master/services/input/InputReader.cpp"><code>InputReader</code></a> なるクラスがある。</p>
+
+<figure class='code'><figcaption><span>InputReader.cpp </span><a href='https://github.com/android/platform_frameworks_base/blob/master/services/input/InputReader.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="k">class</span> <span class="nc">InputReader</span> <span class="o">:</span> <span class="k">public</span> <span class="n">InputReaderInterface</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">sp</span><span class="o">&lt;</span><span class="n">EventHubInterface</span><span class="o">&gt;</span> <span class="n">mEventHub</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">KeyedVector</span><span class="o">&lt;</span><span class="n">int32_t</span><span class="p">,</span> <span class="n">InputDevice</span><span class="o">*&gt;</span> <span class="n">mDevices</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="p">...</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>いかにも怪しい名前のオブジェクト <code>InputDevice</code> を持っている。加えて <code>InputReaderThread</code> まであり、つまりこの <code>InputReader</code> も自分のスレッドを持っている。
+そして自分のスレッドで <code>EventHub</code> や <code>InputDevice</code> としてカプセル化された入力デバイスからの入力を待つ。</p>
+
+<p><code>InputManager</code>, <code>InputReader</code>, <code>InputDispatcher</code>。ざっと眺めたけれど、これらのクラスはいま以上に細かく見ても面白くない。
+各クラスやスレッドとキューの関係をながめ、さっさと先に進みたい。</p>
+
+<ul>
+<li><em>InputDispatcher</em>: <code>InputDispatcher</code> は自分のスレッドで <code>Looper</code> をまわし、<code>InputChannel</code> にデータを書き込む。<code>InputDispatcher</code> への入力は <code>InputDispatcher::mInboundQueue</code> に詰められる。そしてこのキューをとりだし、配送先をみて適切な <code>InputChannel</code> (フォーカスのある Window に紐づいた <code>InputChannel</code>) に書き込む。</li>
+<li><em>InputReader</em>: <code>InputReader</code> も自分でスレッドを持っている。そのスレッドで <code>EventHub</code> からデータを読み出す。読み出したデータは <code>InputDispatcher</code> に通知される。</li>
+<li><em>InputManager</em>: <code>InputDispatcher</code> と <code>InputReader</code> の寿命を管理する。</li>
+<li><code>InputDispatcher</code> と <code>InputReader</code> の間には <code>QueuedInputListener</code> と呼ばれるキューが挟まっている。ただしこのキューにイベントが長居することはない。</li>
+</ul>
+
+
+<p>図で書いてお茶を濁すとこんなかんじ:</p>
+
+<p><img src="https://farm3.staticflickr.com/2917/14454313768_a0d76eb355_b_d.jpg" alt="Input related classes" /></p>
+
+<h2>EventHub</h2>
+
+<p><code>InputReader</code> が持つ <code>EventHub</code> はカーネルからユーザランドにタッチを届ける最初のオブジェクト。
+ようやく下には Linux しかない階にたどり着いた。コンストラクタからしてそれっぽい。</p>
+
+<figure class='code'><figcaption><span>EventHub.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">EventHub</span><span class="o">::</span><span class="n">EventHub</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="o">:</span> <span class="p">...</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="p">....</span>
+</span><span class='line'>    <span class="n">mEpollFd</span> <span class="o">=</span> <span class="n">epoll_create</span><span class="p">(</span><span class="n">EPOLL_SIZE_HINT</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">mINotifyFd</span> <span class="o">=</span> <span class="n">inotify_init</span><span class="p">();</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">result</span> <span class="o">=</span> <span class="n">inotify_add_watch</span><span class="p">(</span><span class="n">mINotifyFd</span><span class="p">,</span> <span class="n">DEVICE_PATH</span><span class="p">,</span> <span class="n">IN_DELETE</span> <span class="o">|</span> <span class="n">IN_CREATE</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">epoll_event</span> <span class="n">eventItem</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">memset</span><span class="p">(</span><span class="o">&amp;</span><span class="n">eventItem</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">eventItem</span><span class="p">));</span>
+</span><span class='line'>    <span class="n">eventItem</span><span class="p">.</span><span class="n">events</span> <span class="o">=</span> <span class="n">EPOLLIN</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">eventItem</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">u32</span> <span class="o">=</span> <span class="n">EPOLL_ID_INOTIFY</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">epoll_ctl</span><span class="p">(</span><span class="n">mEpollFd</span><span class="p">,</span> <span class="n">EPOLL_CTL_ADD</span><span class="p">,</span> <span class="n">mINotifyFd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">eventItem</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">wakeFds</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">pipe</span><span class="p">(</span><span class="n">wakeFds</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">mWakeReadPipeFd</span> <span class="o">=</span> <span class="n">wakeFds</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">mWakeWritePipeFd</span> <span class="o">=</span> <span class="n">wakeFds</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">mWakeReadPipeFd</span><span class="p">,</span> <span class="n">F_SETFL</span><span class="p">,</span> <span class="n">O_NONBLOCK</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">fcntl</span><span class="p">(</span><span class="n">mWakeWritePipeFd</span><span class="p">,</span> <span class="n">F_SETFL</span><span class="p">,</span> <span class="n">O_NONBLOCK</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="n">result</span> <span class="o">=</span> <span class="n">epoll_ctl</span><span class="p">(</span><span class="n">mEpollFd</span><span class="p">,</span> <span class="n">EPOLL_CTL_ADD</span><span class="p">,</span> <span class="n">mWakeReadPipeFd</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">eventItem</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>inotify</code>, <code>fcntl</code>, <code>epoll</code> に <code>pipe</code>&#8230; なんとなくサーバのコードを読んでるみたいで落ち着く。
+<code>inotify</code> を使っているのはデバイスの動的な追加や削除に対応するため。
+<code>Looper</code> を使わず <code>epoll</code> を直接呼んでいるのはなぜ？とかは気にしないでおく。たぶんたいした理由はなかろう。</p>
+
+<p>肝心なデバイスたちを追加するコードは <code>EventHub::scanDirLocked()</code>.</p>
+
+<figure class='code'><figcaption><span>EventHub.cpp</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="n">status_t</span> <span class="n">EventHub</span><span class="o">::</span><span class="n">scanDirLocked</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">dirname</span><span class="p">)</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="n">devname</span><span class="p">[</span><span class="n">PATH_MAX</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">char</span> <span class="o">*</span><span class="n">filename</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">DIR</span> <span class="o">*</span><span class="n">dir</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">dirent</span> <span class="o">*</span><span class="n">de</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">dir</span> <span class="o">=</span> <span class="n">opendir</span><span class="p">(</span><span class="n">dirname</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">if</span><span class="p">(</span><span class="n">dir</span> <span class="o">==</span> <span class="nb">NULL</span><span class="p">)</span>
+</span><span class='line'>        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">strcpy</span><span class="p">(</span><span class="n">devname</span><span class="p">,</span> <span class="n">dirname</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">filename</span> <span class="o">=</span> <span class="n">devname</span> <span class="o">+</span> <span class="n">strlen</span><span class="p">(</span><span class="n">devname</span><span class="p">);</span>
+</span><span class='line'>    <span class="o">*</span><span class="n">filename</span><span class="o">++</span> <span class="o">=</span> <span class="sc">&#39;/&#39;</span><span class="p">;</span>
+</span><span class='line'>    <span class="k">while</span><span class="p">((</span><span class="n">de</span> <span class="o">=</span> <span class="n">readdir</span><span class="p">(</span><span class="n">dir</span><span class="p">)))</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="n">de</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;.&#39;</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>           <span class="p">(</span><span class="n">de</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;\0&#39;</span> <span class="o">||</span>
+</span><span class='line'>            <span class="p">(</span><span class="n">de</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="n">de</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="sc">&#39;\0&#39;</span><span class="p">)))</span>
+</span><span class='line'>            <span class="k">continue</span><span class="p">;</span>
+</span><span class='line'>        <span class="n">strcpy</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">de</span><span class="o">-&gt;</span><span class="n">d_name</span><span class="p">);</span>
+</span><span class='line'>        <span class="n">openDeviceLocked</span><span class="p">(</span><span class="n">devname</span><span class="p">);</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">closedir</span><span class="p">(</span><span class="n">dir</span><span class="p">);</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>なんというか、C++ というより C なかんじのコードですな。
+<code>openDeviceLocked()</code> の中身はひたすら <code>ioctl()</code> してデバイスの種別を検出する
+コードがだらだらと書かれている。読むと疲れるから省略。
+こうして開かれたデバイスたちが epoll 経由で監視され、状態を読み出される。それだけ知っていればいい気がする。</p>
+
+<h2>input_event</h2>
+
+<p><code>epoll_wait()</code> をラップする <code>EventHub::getEvents()</code> を見ると、
+デバイスたちとどんなデータ形式で情報をやり取りするのか垣間みる事ができる。</p>
+
+<figure class='code'><figcaption><span>EventHub.cpp </span><a href='https://github.com/android/platform_frameworks_base/blob/master/services/input/EventHub.cpp'>link</a></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='c++'><span class='line'><span class="p">...</span>
+</span><span class='line'><span class="n">size_t</span> <span class="n">EventHub</span><span class="o">::</span><span class="n">getEvents</span><span class="p">(</span><span class="kt">int</span> <span class="n">timeoutMillis</span><span class="p">,</span> <span class="n">RawEvent</span><span class="o">*</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">size_t</span> <span class="n">bufferSize</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">...</span>
+</span><span class='line'>    <span class="k">struct</span> <span class="n">input_event</span> <span class="n">readBuffer</span><span class="p">[</span><span class="n">bufferSize</span><span class="p">];</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'>            <span class="k">const</span> <span class="k">struct</span> <span class="n">epoll_event</span><span class="o">&amp;</span> <span class="n">eventItem</span> <span class="o">=</span> <span class="n">mPendingEventItems</span><span class="p">[</span><span class="n">mPendingEventIndex</span><span class="o">++</span><span class="p">];</span>
+</span><span class='line'>            <span class="n">ssize_t</span> <span class="n">deviceIndex</span> <span class="o">=</span> <span class="n">mDevices</span><span class="p">.</span><span class="n">indexOfKey</span><span class="p">(</span><span class="n">eventItem</span><span class="p">.</span><span class="n">data</span><span class="p">.</span><span class="n">u32</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">...</span>
+</span><span class='line'>            <span class="n">Device</span><span class="o">*</span> <span class="n">device</span> <span class="o">=</span> <span class="n">mDevices</span><span class="p">.</span><span class="n">valueAt</span><span class="p">(</span><span class="n">deviceIndex</span><span class="p">);</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">eventItem</span><span class="p">.</span><span class="n">events</span> <span class="o">&amp;</span> <span class="n">EPOLLIN</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="p">...</span>
+</span><span class='line'>                <span class="n">int32_t</span> <span class="n">readSize</span> <span class="o">=</span> <span class="n">read</span><span class="p">(</span><span class="n">device</span><span class="o">-&gt;</span><span class="n">fd</span><span class="p">,</span> <span class="n">readBuffer</span><span class="p">,</span>
+</span><span class='line'>                        <span class="k">sizeof</span><span class="p">(</span><span class="k">struct</span> <span class="n">input_event</span><span class="p">)</span> <span class="o">*</span> <span class="n">capacity</span><span class="p">);</span>
+</span><span class='line'>                <span class="p">...</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p><code>input_event</code> なる構造体を読み出している。</p>
+
+<p>これは Linux が定義する構造体。入力デバイス用ドライバ仕様の一部として<a href="https://www.kernel.org/doc/Documentation/input/input.txt">文書化されている</a>。</p>
+
+<p>Linux 側だけでなく、あんどろ側でも <code>InputReader</code> 周辺のコードについては<a href="http://source.android.com/devices/tech/input/overview.html">簡単な説明</a>がある。
+自分のデバイスにあんどろを移植したい人が読む資料のひとつらしい。コード読まなくてもよかったじゃん&#8230;
+アプリケーションの奥に潜ったつもりが反対側の玄関に出てしまった気分。</p>
+
+<p>今回の主題タッチイベントについても<a href="http://source.android.com/devices/tech/input/touch-devices.html">きちんと説明があり</a>、
+しかも結局のところ <a href="https://www.kernel.org/doc/Documentation/input/multi-touch-protocol.txt">Linux のドライバの仕様</a> に従いましょう、という結論のよう。
+なるほどこれが Linux をベースにするということかとやや感心した。もうちょっと変な事をやってるもんだと勝手に思ってた・・・。</p>
+
+<p>デバイスファイルというそこそこ標準的なインターフェイスを使っているおかげで、
+unlocked なデバイスでは <a href="http://www.pocketmagic.net/2013/01/programmatically-injecting-events-on-android-part-2/">外部からイベントを注入することもできるらしい</a>。
+その仕組みをテストの自動化に使う話などをみかけた。こんなレイヤで自動化をするのが良いアイデアなのかはさておき、おもしろい話ではあるね。</p>
+
+<h2>そのほか InputManager の仕事</h2>
+
+<p>この <code>InputManager</code> と仲間たちの周辺は面倒な問題をまとめて押し込んだ風情。あちこちで細々とした問題に対処している。
+たとえデバイスの傾きに応じ画面の向きが回転すると、デバイスから届く座標を回転変換してからアプリケーションに知らせる。
+またあんどろはある時期から画面上の仮想ボタンで物理ボタンを代替できるようになった。その仮想ボタン(virtual key)も <code>InputReader</code> が面倒を見る。
+そういう雑多な責務を押し付けられた結果、 <a href="https://github.com/android/platform_frameworks_base/blob/master/services/input/InputReader.cpp"><code>InputReader.cpp</code></a> は 6500 行、
+<a href="https://github.com/android/platform_frameworks_base/blob/master/services/input/InputDispatcher.cpp"><code>InputDispatcher.cpp</code></a> は 4500 行にふくれあがっている。気の毒。</p>
+
+<h2>まとめなど</h2>
+
+<p>というわけで <code>View#onTouchEvent()</code> に <code>MotionEvent</code> がとどくまでの道程を眺めてみた。</p>
+
+<p>スタート地点である <code>View</code> を含むプロセスでは、余分なスレッドに寄り道することなく <code>Looper</code> に便乗した <code>InputEventReceiver</code> が <code>InputChannel</code> から <code>InputMessage</code> を読み出し、
+バッチ化した上で <code>ViewRootImpl</code> にイベントをよこす。Binder ではなく <code>InputChannel</code> のような別の経路を使うのは、メインループに処理をくっつけるためでもあろうだろう。</p>
+
+<p><code>ViewRootImpl</code> が受け取ったイベントは <code>InputStage</code> マイクロフレームワークを通過してから <code>View</code> ツリーに送り込まれる。
+ツリーの中では座標変換や衝突判定などをしつつ親から子へイベントが伝播する。</p>
+
+<p><code>View</code> のあるプロセスにイベントのデータを送りつけるのは Window Manager のサービスが住むプロセス。
+<code>IWindowManager</code> binder オブジェクトが <code>View</code> のある &#8230; というか Window を持つプロセスに <code>InputChannel</code> を付与する。
+<code>InputChannel</code> の実体は <code>socketpair()</code> で作った UNIX ドメインソケットだった。</p>
+
+<p>Window Manager のプロセスには送付先 <code>InputChannel</code> を複数束ねる <code>InputDispatcher</code> と、デバイスファイルを束ねる <code>InputReader</code> がいる。
+この２つのオブジェクトはそれぞれ自分のスレッドを持っている。<code>InputManager</code> がこの２つのオブジェクトをまとめた facade として機能している。
+<code>InputReader</code> は <code>EventHub</code> オブジェクトにデバイスファイルのデスクリプタを預け、 <code>EventHub</code> は <code>epoll</code> や <code>inotify</code> でこれらのファイルやファイルのディレクトリを監視、
+データを読みだす。読み出されたデータは <code>InputReader</code> が <code>InputDispatcher</code> に手渡す。<code>InputDispatcher</code> はそのデータを適当な <code>InputChannel</code> に書き出す。</p>
+
+<p><img src="https://farm3.staticflickr.com/2926/14638745414_618c56034c_b_d.jpg" alt="life of touch" /></p>
+
+<p>オブジェクトやプロセスをまたいだイベントの受け渡しには何らかのキューが使われる。キューには処理を非同期化するものとしないものがある。
+<code>View</code> のあるプロセスの中に限るとキューは一つ、 <code>ViewRootImpl</code> がもつ <code>QueuedInputEvent</code> だけ。このキューは(多くの場合)処理を非同期化せず、その場で同期的に消化された。</p>
+
+<p><code>View</code> のあるプロセスと Window Manager のプロセスの間には <code>InputChannel</code> に隠された UNIX ドメインソケットというキューがある。
+これは非同期。プロセスをまたぐ以上同期的に動きようがない。</p>
+
+<p>Window Manager の中にはたくさんのキューがある。 <code>InputDispatcher</code> がもつ <code>inboutQueeue</code>, <code>InputDispatcher::Connection</code> の <code>outboundQueue</code>, <code>InputDispatcher</code> と
+<code>InputReader</code> をつなぐ <code>QueuedInputListener</code>. 中でも <code>InputDispatcher::inboundQueue</code> はスレッドをまたぐ非同期化に使われている。
+あとはカーネルのなかに追加のキューがあっても驚かないけれど、調べていない。ユーザ空間の中では非同期化されるキューは２つだけ。
+反応性への配慮という点で、これはがんばってるとおもう。</p>
+
+<h3>わからないこと</h3>
+
+<p>入力やイベント処理というのは一般に abstraction が leak しやすい分野。ここでも例にもれず読むのに疲れる雑然としたコードがあちこちに顔を出し、読むのは疲れた。
+とはいえあんどろ入門という当初の目的には悪くなかった気がする。<code>View</code> ツリー内へのディスパッチをひやかして <code>View</code> のイベントモデルに入門し、
+<code>Looper</code> を通じてスレッドモデルをちらりとのぞき、<code>InputChannel</code> の周辺をさまよい Binder と Parcel に触れ、
+Window Manager のはじっこを通り過ぎて最後は Linux の表面に降り立った。あんどろよくわからん、という気分は若干薄れた気がする。</p>
+
+<p>とはいえ当然ながらわからないことも沢山ある。Activity や最初の View はどうやって作られたのか。
+特に IWindowManager のようなサービスはどのプロセスで動いていて、アプリケーションはその binder オブジェクトをどう手に入れるのか。
+そんな bootstrap は全然わかっていない。</p>
+
+<p>Binder といえばスレッドモデルもよくわからない。proxy 経由のメソッド呼び出しはホスト側のどのスレッドに届くのか。</p>
+
+<p>イベントをうけとったあと、画面がどう描かれるのか・・・は、 <a href="https://source.android.com/devices/graphics/architecture.html">Graphics System-Level Architecture</a> という
+よく書かれた資料があり、このおかげでそこそこわかった気になれた。今回タッチイベントについて書こうと思ったのもこの文書に刺激されたから。
+まあ素人のラクガキなので比べ物にはならないけどね・・・。</p>
+
+<p>あとはそもそもどうやってアプリを構成するのがよいのかなど常識的な話がわかってない。
+すいすい動くアプリはどうしたら作れるのか、とかさ。まあ手を動かさないとわからないことだろうし、ぼちぼちやっていこうとおもいます。</p>
+
+<p>間違いそのほかは気が向いたらついったなどで訂正していただけると助かります、と繰り返し教えを乞うて今日はおしまい。</p>
+
+<p><img src="https://farm6.staticflickr.com/5508/14617931856_31533cd133_b.jpg" alt="feeling sleepy" /></p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/p/page/11/">&larr; Older</a>
+    
+    <a href="/blog/archives/">Blog Archives</a>
+    
+    <a class="next" href="/p/page/9/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br>
+Disclaimer: <span class="disclaimer">ここで述べられていることは個人的な意見に基づくものです。私の雇用者に一切の関係はありません。</span><br>
+Hajime Morrita - <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

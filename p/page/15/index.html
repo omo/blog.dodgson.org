@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>steps to phantasien</title>
+  <meta name="author" content="Hajime Morrita">
+
+  
+  <meta name="description" content="&#8220;「書く」のは特別な道具&#8221; という記事のなかで検索会社の Design Docs というやり方が
+すっかり過去のものになってしまったかのように読めなくもなかったため、私の理解を書いてみたい。 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://steps.dodgson.org/p/page/15/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="steps to phantasien" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<link href='http://fonts.googleapis.com/css?family=Artifika|PT+Sans:regular,italic,bold,bolditalic|PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<meta property="fb:admins" content="542412357">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27326331-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1><a href="/">steps to phantasien</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:steps.dodgson.org" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives/">Archives</a></li>
+  <li><a href="/selection/">Selection</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div class="blog-index">
+  
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/b/2013/11/07/why-design-docs/">Design Docs はなんのため?</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-07T21:47:00-08:00" pubdate data-updated="true">Nov 7<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>&#8220;<a href="http://d.hatena.ne.jp/naoya/20131107">「書く」のは特別な道具</a>&#8221; という記事のなかで検索会社の Design Docs というやり方が
+すっかり過去のものになってしまったかのように読めなくもなかったため、私の理解を書いてみたい。
+ただ私は検索会社メインストリームであろうクラウドヒャッホイな仕事はしていないので色々間違ってるかもしれない。
+これを呼んで憤った同僚各位はぜひついったや会社の中などでこっそり教えてください。追記します。</p>
+
+<p>Design Docs は考えるための仕組みというより、むしろ議論のための仕組みである、とおもう。
+この二つは矛盾しない。文章にすれば考えがまとまるのは確かだし、議論自体も思考を支える道具の一つだから。
+けれど文章はまず読者のために書くもの。そして一番の読者は誰かというと、チームメイトや隣接プロジェクトの同僚達だ。</p>
+
+<h2>誰のため？</h2>
+
+<p>Design Docs の意義はコードレビューと合わせて考えるとわかりやすい。
+検索会社周辺ではレポジトリにコードをチェックインする上でレビューは必須とされている。
+GitHub 圏の素敵カンパニー達にもそういうところは多いと伝え聞いているので、特段珍しい話ではない。</p>
+
+<p>さて、これから新しいシステムを作る、大きな変更や拡張をする、そんな時のことを考えてみよう。
+とりあえず適当に書きはじめたコードをレビューに出したとする。
+このときレビューをする同僚は、何をもとにその善し悪しを判断すれば良いだろう。
+その理解を助けるのが Design Docs の一番の価値だと思えば多分だいたい合っている。
+レビュアは文書を読んで大筋を把握し、その筋を進める一歩としてレビュー対象のコードをにらむ。</p>
+
+<p>プロジェクトの規模やフェーズによって、コードレビュー以外にも色々相談しておくべきことがある。
+スケーラビリティ・・・というと曖昧だけれど、たとえばアプリケーションが使うストレージや API ををホストするチームに、
+こんな感じで API を叩きたい/データをおきたいんだけど、キャパシティ足りますよね、などと相談する。
+最近だとセキュリティやプライバシーはかなり厳しくチェックされるらしく、そのために要件をクリアにしないといけない。
+そういうチェックや相談に向けた事前資料も Design Docs の範疇になる。それぞれ読者が違うから、用途にあわせて文書を用意する。
+相手はその文書を呼んで、大丈夫ですとかここがダメとか、そういう話をする。
+定型的なチェックについては文書にもテンプレートがある、はず。</p>
+
+<p>プロジェクトが大きいほどチェックや相談を頼む相手も増える。
+沢山の API をつかう、隣接するプロジェクトに変更をお願いする、
+ユーザの個人情報を扱う、大量のトラフィックが見込まれている、
+新しくサーバを増やす分モニタリングを頼みたい・・・どんな会社でも似たようなややこしさはあるだろうけれど、
+検索の会社はでかい上に組織の境目が緩いので、依存関係の枝は広がりやすいように見える。
+聞き慣れないオフィスに出張するという同僚に、「そんなところに X のチームがあるんですねえ」と聞くと
+「いや今度のプロジェクトは Y のデータを使わせてもらうんで相談にいくんですよ」なんて答えが返ってくることはよくある。
+私の出張先は本社のあるツクバ・カルフォルニアばかりなのでやや羨ましい。</p>
+
+<h2>レビューと文書</h2>
+
+<p>レビューの議論はメールベースで進むこともあれば、対面やビデオ会議で進むこともあろうだろう。
+どちらにせよ基本はまずメールでドキュメントへのリンクを送っておいて、必要に応じて密な対話に入るのが定石のようす。
+いきなり口頭で説明されてもお互い時間の無駄だし、ミーティングのために朝早く起きたり相手のとこまで出張したりするのもしんどいしね・・・。</p>
+</div>
+  
+  
+
+
+    </article>
+  
+  <div class="pagination">
+    
+      <a class="prev" href="/p/page/16/">&larr; Older</a>
+    
+    <a href="/blog/archives/">Blog Archives</a>
+    
+    <a class="next" href="/p/page/14/">Newer &rarr;</a>
+    
+  </div>
+</div>
+<aside class="sidebar">
+  
+    
+  
+</aside>
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br>
+Disclaimer: <span class="disclaimer">ここで述べられていることは個人的な意見に基づくものです。私の雇用者に一切の関係はありません。</span><br>
+Hajime Morrita - <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

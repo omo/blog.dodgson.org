@@ -1,0 +1,312 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Rx で Koan した - steps to phantasien</title>
+  <meta name="author" content="Hajime Morrita">
+
+  
+  <meta name="description" content="Android 入門にあわせて Java も勉強しなおすかと Effective Java を読みはじめたらすっかり疲れてしまった。Java&#8230; 昔 Effective Java 初版を読んだ頃は結構好きだった気がするけれど、いま二版を読むとこれ Bureaucratic Java &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://steps.dodgson.org/b/2014/10/01/playing-with-rx-koans/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="steps to phantasien" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+<link href='http://fonts.googleapis.com/css?family=Artifika|PT+Sans:regular,italic,bold,bolditalic|PT+Serif:regular,italic,bold,bolditalic' rel='stylesheet' type='text/css'>
+<meta property="fb:admins" content="542412357">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-27326331-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   class="no-sidebar"  >
+  <header role="banner"><hgroup>
+  <h1><a href="/">steps to phantasien</a></h1>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:steps.dodgson.org" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives/">Archives</a></li>
+  <li><a href="/selection/">Selection</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Rx で Koan した</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-01T21:31:00-07:00" pubdate data-updated="true">Oct 1<span>st</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><img src="https://farm5.staticflickr.com/4116/4776232863_e0c3ab7348_b.jpg" alt="zen" /></p>
+
+<p>Android 入門にあわせて Java も勉強しなおすかと <a href="http://www.amazon.co.jp/EFFECTIVE-JAVA-%E7%AC%AC2%E7%89%88-Java-Series/dp/4621066056%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D4621066056"> Effective Java </a> を読みはじめたらすっかり疲れてしまった。Java&#8230; 昔 Effective Java 初版を読んだ頃は結構好きだった気がするけれど、いま二版を読むとこれ Bureaucratic Java じゃないのという気がしてしまう。まあ <a href="http://www.amazon.co.jp/Effective-%E7%AC%AC3%E7%89%88-ADDISON-WESLEY-PROFESSIONAL-COMPUTI/dp/4621066099%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D4621066099"> Effective C++ </a> を読んだ人も多くは Wicked C++ だと感じるだろし <a href="http://www.amazon.co.jp/Effective-JavaScript-JavaScript%E3%82%92%E4%BD%BF%E3%81%86%E3%81%A8%E3%81%8D%E3%81%AB%E7%9F%A5%E3%81%A3%E3%81%A6%E3%81%8A%E3%81%8D%E3%81%9F%E3%81%8468%E3%81%AE%E5%86%B4%E3%81%88%E3%81%9F%E3%82%84%E3%82%8A%E6%96%B9-David-Herman/dp/4798131113%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3D4798131113"> Effective JavaScript </a> は Ridiculous JavaScript だろう。文句は言うまい。何事も慣れるには時間がかかる。Java 8 はだいぶマシと伝え聞くものの、Effective Java の三版がでるのはいつになることやら。</p>
+
+<p>そんな日々の現実逃避に <a href="http://atscaleconference.com/">@Scale Conference</a> の<a href="https://www.youtube.com/channel/UCd9I8ZkgoR1d7GeSj_wi_LQ">ビデオ</a>を眺めていたところ、Netflix が RxJS でクライアントサイドの JavaScript を書き直したという<a href="https://www.youtube.com/watch?v=gawmdhCNy-A">講演</a>があった。そういえば Reactive Programming ってかっこよさそうだけどよくわかってない。この Rx とやらをさわれば Reactive 入門できるのだろうか。でもどうせなら JS じゃなくて Android で Rx したいなあ。調べてみると <a href="http://open.blogs.nytimes.com/2014/08/18/getting-groovy-with-reactive-android/">NYTimes が RxJava と Groovy で Android アプリを書き直しているという記事</a>がある。Groovy と Rx で Android! ちょっとかっこよさそう。これは Java がかったるくて Android に重い腰をあげそこねつつ Reactive Programming が気になる年頃な自分の進む道なのではないか。</p>
+
+<p>やる気がでてきたところでまず Rx に入門したい。ちょうど RxJava をはじめとする Rx ライブラリ群を売り込み中の Netflix が <a href="http://reactivex.io/">reactivex.io</a> というサイトを立ち上げており、その中に入門者向けの<a href="http://reactivex.io/tutorials.html">チュートリアルリンク集</a>があった。いくつか読んで雰囲気をつかんだあと、評判の良い <a href="http://www.amazon.co.jp/Introduction-English-Edition-Lee-Campbell-ebook/dp/B008GM3YPM%3FSubscriptionId%3DAKIAJLKJADTUVPPTFSNA%26tag%3Dstepstophanta-22%26linkCode%3Dxm2%26camp%3D2025%26creative%3D165953%26creativeASIN%3DB008GM3YPM"> Introduction to Rx </a> なる Kindle 本を読んでみる。<a href="http://www.introtorx.com/">ブログ記事</a> をひとまとめにして売ってるらしい。 値段($1)の割に良く書けていた。一見ページ数は多そうだけど中身はだいたいコード。すぐ読める。コードは C# だけどこの本の範囲ではだいたい Java みたいなものなので問題なし。</p>
+
+<p>さて理屈はわかった。そろそろ手を動かしたい。でも <a href="https://github.com/ReactiveX/RxAndroid">Android のプロジェクトにインテグレート</a>するのは面倒そうだなあそもそも Android よくわかんないし・・・。ふたたび怖じ気づきぶらぶらしていたら、 Microsoft が公開している <a href="http://rxkoans.codeplex.com/">RxKoans</a> なる練習問題セットをみつけた。 C# で書かれている。現実逃避の現実逃避にこれを RxJava (と Groovy) で<a href="https://github.com/omo/hello/tree/master/gradle-groovy/src/test/groovy">解いてみた</a>。</p>
+
+<p>こんな C# のコードを:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='c#'><span class='line'><span class="k">public</span> <span class="k">void</span> <span class="nf">SplittingUp</span><span class="p">()</span>
+</span><span class='line'><span class="p">{</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">oddsAndEvens</span> <span class="p">=</span> <span class="k">new</span><span class="p">[]</span> <span class="p">{</span><span class="s">&quot;&quot;</span><span class="p">,</span> <span class="s">&quot;&quot;</span><span class="p">};</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">numbers</span> <span class="p">=</span> <span class="n">Observable</span><span class="p">.</span><span class="n">Range</span><span class="p">(</span><span class="m">1</span><span class="p">,</span> <span class="m">9</span><span class="p">);</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">split</span> <span class="p">=</span> <span class="n">numbers</span><span class="p">.</span><span class="n">GroupBy</span><span class="p">(</span><span class="n">n</span> <span class="p">=&gt;</span> <span class="n">n</span><span class="p">%</span> <span class="n">____</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">split</span><span class="p">.</span><span class="n">Subscribe</span><span class="p">((</span><span class="n">IGroupedObservable</span><span class="p">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">&gt;</span> <span class="k">group</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="k">group</span><span class="p">.</span><span class="n">Subscribe</span><span class="p">(</span><span class="n">n</span> <span class="p">=&gt;</span> <span class="n">oddsAndEvens</span><span class="p">[</span><span class="k">group</span><span class="p">.</span><span class="n">Key</span><span class="p">]</span> <span class="p">+=</span> <span class="n">n</span><span class="p">));</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">evens</span> <span class="p">=</span> <span class="n">oddsAndEvens</span><span class="p">[</span><span class="m">0</span><span class="p">];</span>
+</span><span class='line'>    <span class="kt">var</span> <span class="n">odds</span> <span class="p">=</span> <span class="n">oddsAndEvens</span><span class="p">[</span><span class="m">1</span><span class="p">];</span>
+</span><span class='line'>    <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="s">&quot;2468&quot;</span><span class="p">,</span> <span class="n">evens</span><span class="p">);</span>
+</span><span class='line'>    <span class="n">Assert</span><span class="p">.</span><span class="n">AreEqual</span><span class="p">(</span><span class="s">&quot;13579&quot;</span><span class="p">,</span> <span class="n">odds</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>こんな感じにする:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='groovy'><span class='line'>  <span class="kt">void</span> <span class="nf">splittingUp</span><span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>    <span class="kt">def</span> <span class="n">oddsAndEvens</span> <span class="o">=</span> <span class="o">[</span><span class="s2">&quot;&quot;</span><span class="o">,</span> <span class="s2">&quot;&quot;</span><span class="o">]</span> <span class="k">as</span> <span class="n">String</span><span class="o">[]</span>
+</span><span class='line'>    <span class="kt">def</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">Observable</span><span class="o">.</span><span class="na">from</span><span class="o">(</span><span class="mi">1</span><span class="o">..</span><span class="mi">9</span><span class="o">)</span>
+</span><span class='line'>    <span class="kt">def</span> <span class="n">split</span> <span class="o">=</span> <span class="n">numbers</span><span class="o">.</span><span class="na">groupBy</span><span class="o">({</span> <span class="n">it</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">})</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">split</span><span class="o">.</span><span class="na">subscribe</span><span class="o">(</span>
+</span><span class='line'>      <span class="o">{</span> <span class="n">GroupedObservable</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">,</span> <span class="n">Integer</span><span class="o">&gt;</span> <span class="n">group</span> <span class="o">-&gt;</span>
+</span><span class='line'>        <span class="n">group</span><span class="o">.</span><span class="na">subscribe</span><span class="o">({</span> <span class="n">oddsAndEvens</span><span class="o">[</span><span class="n">group</span><span class="o">.</span><span class="na">key</span><span class="o">]</span> <span class="o">+=</span> <span class="n">it</span><span class="o">.</span><span class="na">toString</span><span class="o">()</span> <span class="o">})</span>
+</span><span class='line'>      <span class="o">}</span>
+</span><span class='line'>    <span class="o">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">assert</span> <span class="n">oddsAndEvens</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;2468&quot;</span>
+</span><span class='line'>    <span class="k">assert</span> <span class="n">oddsAndEvens</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">==</span> <span class="s2">&quot;13579&quot;</span>
+</span><span class='line'>  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Groovy はよくわからないままカンとウェブを頼りに書いておりますゆえ idiomatic じゃなかったらごめんなさい。それにしても Groovy, むかし触ったときは遅いしエラーが起こるとインタープリタのスタックトレースが見えるしでしょぼい言語だと馬鹿にしてたけど、クロージャも部分的な型推論もあり静的コンパイルオプションをつければ生成されるバイトコードもコンパクト。今あらためて触ると結構かわいいやつな気がする。年を経て良くなったのかも。えらい。</p>
+
+<h2>Koans</h2>
+
+<p>Koans を解くのはちょっと楽しい。Rx に限らず入門目的のちょっとしたコーディング問題集を Koan とよぶのはある種のならわしらしい。<a href="https://www.google.com/#q=code+koans">Code Koans</a> などを検索すると色々みつかる。語源はたぶん「公案」なのだろう。本来の意味とは外れている気もするけれど気にしないでおこう。Koan だの Kata だのの Zen terminology を好む Kamikaze Ninjas はなぜか一定数いるからね。</p>
+
+<p>Koan の難度はものによる。ふつうは入門向けなので難しくない。RxKoans もちょっと試せばすぐ解ける。(ただし RxJava だとライブラリの機能不足で解けないものもある。) とはいえ少なくとも穴を埋めて動かさないと先に進まない。この「ちょっとだけ頭を使い」「実際のコードをちょっとだけ書き」「動かして結果を見る」という手順がコンテンツの力で強制されるのは助かる。</p>
+
+<p>たとえば Rx Koans は Visual Studio のプロジェクトがついてくる。コードはコンパイルできる。ただしテストは通らない。そのテストを通すようコードを穴埋めする過程で Rx の動作を体験する。新しいテクノロジについていくのが年々辛くなる中年にとって Koans のように入門の敷居を下げる教材はありがたい。</p>
+
+<h2>手をうごかす入門</h2>
+
+<p>新技術の入門に際し手を動かそうとするとき、おおきく２つの流派をよく目にする: 一つ目は実際になにかアプリを書いてみるトップダウンな「アプリ派」。もう一方は教科書のコードを書き写しては動かすボトムアップな「写経派」。ただ私からすると前者は手強すぎ、後者は退屈すぎる。間が欲しいと思っていた。</p>
+
+<p>高価な授業料を払うことで「アプリ派」の敷居を下げる事はできる。有償のワークショップに参加すればいい。ただ授業料は本当に高いし身近にクラスがあるとも限らない。そうはいっても今はオンラインの講義なんかも有償無償いろいろあるから、トップダウンな入門法はとっつきやすいものになりつつあるのだろう。</p>
+
+<p>Koans は「写経派」のようなボトムアップなアプローチのマシなバージョンと言えるかもしれない。写経といってもただサンプルを書き写すだけだと頭を使わない。だからコードをいじって頭を使え。写経派はそう説く。言いたい事はわかる。でも高すぎる自由度に戸惑ってしまうのが冴えない中年。クリエイティビティのないおっさんでも Koans のフォーマットを頼れば頭を使える。このアプローチにはもっと市民権を得てほしい。今のところ Koans は守備範囲が狭すぎて心細い。</p>
+
+<p>Koans ではないにせよ章末問題のついている教科書は多い。書籍というフォーマットの制限を受けすぎているのが伝統的な章末問題の残念なところだ。たとえば答え合わせが面倒だったり、体裁だけが問題風で答えの無いエセ禅問答だったりする。問題とは別にサンプルコードを公開している本もある。でもそれは頭を使う余地の少ない完成したプログラムが大半。願わくば教科書には試せるコードの形で問題を用意してほしい。手を動かせるコンテンツの価値をもっと重く見てほしい。そのフォーマットの一つとして Koans を使えばいいと思う。</p>
+
+<p>教科書だけでなく草の根のコンテンツが増えればもっと嬉しい。<a href="https://www.google.com/?gws_rd=ssl#q=code+kata">Code Kata</a> や <a href="http://coderetreat.org/about">Code Reterat</a>, あとは各種競技プログラミングなど、手を動かすアイデアは色々ある。トップダウン派のために <a href="https://github.com/karan/Projects">プロジェクトのアイデア一覧</a> を集めている人までいる。こういうやつの特定要素技術バージョンがもっと増えればいい。<a href="http://tour.golang.org/">A Tour of Go</a> なんかは事前準備なくその場で実行できる上に練習問題も混じっている。攻めてる。</p>
+
+<p>Coursera みたいなオンライン講義でトップダウンにアプリの作り方を教わりつつ Github の教科書アカウントから Koans レポジトリを フォークして解く。そんな風に新技術を入門できるとおっさんも延命できるのになあ。なんて夢を見つつ現実逃避はおしまい。</p>
+
+<p>写真: <a href="https://flic.kr/p/8h4rCt">https://flic.kr/p/8h4rCt</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Hajime Morrita</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-01T21:31:00-07:00" pubdate data-updated="true">Oct 1<span>st</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://steps.dodgson.org/b/2014/10/01/playing-with-rx-koans/" data-via="" data-counturl="http://steps.dodgson.org/b/2014/10/01/playing-with-rx-koans/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/b/2014/08/01/forms-at-work/" title="Previous Post: 現場のフォーム">&laquo; 現場のフォーム</a>
+      
+      
+        <a class="basic-alignment right" href="/b/2014/10/13/paperwork/" title="Next Post: 書類仕事を追いかけて">書類仕事を追いかけて &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+<a rel="license" href="http://creativecommons.org/licenses/by-sa/3.0/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/3.0/80x15.png" /></a><br>
+Disclaimer: <span class="disclaimer">ここで述べられていることは個人的な意見に基づくものです。私の雇用者に一切の関係はありません。</span><br>
+Hajime Morrita - <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
